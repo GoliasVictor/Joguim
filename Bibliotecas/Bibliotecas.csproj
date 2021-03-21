@@ -57,7 +57,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\ClassDiagram1.cd" />
