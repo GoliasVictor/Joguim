@@ -1,35 +1,89 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
+using System;
+using System.Diagnostics;
+using System.Collections;
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
-using System.Linq;
-
 using System.Drawing;
 using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
-using OpenTK;
 using OpenTK.Input;
+using static Biblioteca.Helper;
+
 
 namespace Biblioteca
 {
-
-
-[Serializable]
-    public class Cord
+    public struct Vetor
     {
-        public int x { get; set; }
-        public int y { get; set; }
-        public Cord(int cx, int cy)
+        public double x;
+        public double y;
+
+        public Vetor(double x, double y)
+        {
+            this.x = x ;
+            this.y = y;
+            //this.x += (Rnd.NextDouble() - 0.5) * 0.00000001;
+            //this.y += (Rnd.NextDouble() - 0.5) * 0.00000001;
+        }
+        public Vetor(Cord cord)
+        {
+            x = cord.x ;
+            y = cord.y;
+        }
+        public static readonly Vetor Esquerda = new Vetor(-1,0);
+        public static readonly Vetor Direita = new Vetor(1,0);
+        public static readonly Vetor Cima = new Vetor(0,1);
+        public static readonly Vetor Baixo = new Vetor(0,-1);
+        public static Vetor operator *(Vetor A, double Escalar) => new Vetor(A.x* Escalar, A.y*Escalar);
+        public static Vetor operator /(Vetor A, double Escalar) => new Vetor(A.x / Escalar, A.y / Escalar);
+        public static Vetor operator +(Vetor A, Vetor B) => new Vetor(A.x + B.x, A.y + B.y);
+        public static Vetor operator -(Vetor A, Vetor B) => new Vetor(A.x - B.x, A.y - B.y);
+        public static double operator *(Vetor A, Vetor B) => A.x * B.x+ A.y * B.y;
+        public static Vetor operator -(Vetor v) => new Vetor(-v.x, -v.y);
+        public static bool operator <(Vetor A, Vetor B) => A.Tamanho <  B.Tamanho;
+        public static bool operator >(Vetor A, Vetor B) => A.Tamanho >  B.Tamanho;
+        public static explicit operator Vetor(Cord p) => new Vetor(p.x, p.y);
+        public double Tamanho => Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
+        public override string ToString() => $"{{x:{x}, y:{y}}}";
+        public Vetor Normalizar()
+        {
+            return this / Tamanho;
+        }
+        public Vetor Normalizado
+        {
+            get
+            {
+                var NormX = x > 0 ? 1 : x < 0 ? -1 : 0;
+                var NormY = y > 0 ? 1 : y < 0 ? -1 : 0;
+                return new Vetor(NormX,NormY);
+            }
+        }
+
+
+    }
+    [Serializable]
+    public struct Cord
+    {
+        public double x { get; set; }
+        public double y { get; set; }
+        public double z { get; set; }
+        public Cord(double cx, double cy, double cz = 1)
         {
             x = cx;
             y = cy;
-        }
-        public Cord GetCord() => (Cord)MemberwiseClone();
+            z = cz;
+        } 
         public override string ToString() => $"{{x:{x}, y:{y}}}";
 
-        public static bool operator ==(Cord a, Cord b) => a is null? (b is null ? true : false): a.x == b.x && a.y == b.y;
+        public static bool operator ==(Cord a, Cord b) => a.x == b.x && a.y == b.y;
         public static bool operator !=(Cord a, Cord b) => !(a == b);
-        public static implicit operator Cord((int x,int y) p) => new Cord(p.x,p.y);
-
+        public static bool operator >(Cord a, Cord b) => a.x > b.x && a.y > b.y;
+        public static bool operator <(Cord a, Cord b) => a.x < b.x && a.y < b.y;
+        public static bool operator >=(Cord a, Cord b) => a > b || b == a;
+        public static bool operator <=(Cord a, Cord b) => a < b || b == a;
+        public static Cord operator -(Cord a, Cord b) => new Cord(a.x - b.x, a.y - b.y);
+        public static Cord operator +(Cord a, Vetor b) => new Cord(a.x + b.x, a.y + b.y);
+        public static Cord operator /(Cord a, double b) => new Cord(a.x / b, a.y / b);
+        public static implicit operator Cord((double x, double y) p) => new Cord(p.x, p.y);
 
         public override bool Equals(Object obj)
         {
@@ -39,213 +93,41 @@ namespace Biblioteca
                 return x == p.x & y == p.y;
             }
             else return false;
-            
         }
 
-        public override int GetHashCode()=> (x, y).GetHashCode();
-        
+        public override int GetHashCode() => (x, y).GetHashCode();
 
-        public Cord() { }
-    }
 
-    [Serializable]
-    public class EstiloBloco
-    {
-        public Color Cor { get; set; }
-        public EstiloBloco() { }
-        public EstiloBloco(Color color) =>  Cor = Color.FromArgb(127, color);
-        public static implicit operator EstiloBloco(Color c) => new EstiloBloco(c);
-
-        public static EstiloBloco parede  = new EstiloBloco(Color.FromArgb(101, 67, 33));
-        public static EstiloBloco Chao = new EstiloBloco(Color.Green);
-        public static EstiloBloco Morte = new EstiloBloco(Color.Firebrick);
-        public static EstiloBloco Ponto = new EstiloBloco(Color.Cyan);
-        public static EstiloBloco Teletransporte = new EstiloBloco(Color.Cyan);
-        public static EstiloBloco Player = new EstiloBloco(Color.Blue);
-        public static EstiloBloco Botao = new EstiloBloco(Color.Gray);
-        public static EstiloBloco Porta = new EstiloBloco(Color.SaddleBrown);
-    }
-    #region Tipos De Blocos
-    public interface Bloco
-    {
-         bool Tangivel { get; }
-         EstiloBloco Estilo { get;  set; }
-    }
-    public interface IMovel:Bloco
-    {
-        Cord Pos { get; set; }
-        Cord ProximaPos { get; set; }
-        void Movimento();
-        void AtualizarPos();
-    }
-    public interface IInteragivel:Bloco
-    {
-        void Interagir( IMovel e);
-    }
-    public interface IReceptor
-    {
-        void Receber(object e);
-    }
-    public interface IJogador:IMovel
-    {
-        Mapa Map { get; set; }
-        void Dano(int n);
     }
 
 
-    #endregion
 
-    
-    [Serializable]
-    public class Mapa
+
+    public static class Helper 
     {
-        public readonly (int x, int y) Tamanho;
-        public Cord Spawn { get; set; } = (1, 1);
-        public Bloco[,] Grid { get; set; }
-        public List<IMovel> Especiais{ get; set; } = new List<IMovel>();
-        
-
-        public Bloco this[int i, int j]
+        private static double tempo = 0;
+        public static double TempoAnterior { get; private set; }
+        public static double DeltaTempo => Tempo - TempoAnterior;
+        public static Vetor ParedeVelocidade;
+        public static double Tempo
         {
-            get => Grid[i, j];
-            set => Grid[i, j] = value;
-        }
-        public Bloco this[Cord cord]
-        {
-            get => Grid[cord.x, cord.y];
-            set => Grid[cord.x, cord.y] = value;
-        }
-        public Mapa() { }
-        public Mapa(int TamX, int TamY)
-        {
-
-            Tamanho = (TamX, TamY);
-            Grid = new Bloco[TamX, TamY];
-            for (int x = 0; x < TamX; x++)
-                for (int y = 0; y < TamX; y++)
-                    Grid[x, y] = new Chao();
-
-            for (int x = 0; x < TamX; x++)
+            get => tempo; 
+            set
             {
-                Grid[x, TamX - 1] = new Parede();
-                Grid[x, 0] = new Parede();
-            }
-
-            for (int y = 0; y < TamX; y++)
-            {
-                Grid[TamX - 1, y] = new Parede();
-                Grid[0, y] = new Parede();
-            }
-
-        }
-        public void Interagir( IMovel movel )
-        {
-            if (this[movel.ProximaPos] is IInteragivel)
-                ((IInteragivel)this[movel.ProximaPos]).Interagir(movel);
-            foreach (var BlocoEspecial in Especiais)
-                if (BlocoEspecial.Pos == movel.ProximaPos && BlocoEspecial is IInteragivel && !ReferenceEquals(movel, BlocoEspecial)) 
-                        ((IInteragivel)BlocoEspecial).Interagir(movel);
-        }
-        public bool PosTangivel(Cord cord) => this[cord].Tangivel || EspecialTangivel(cord);
-        public void PintarGrid(Cord Pos, Bloco bloco)
-        {
-            Grid[Pos.x, Pos.y] = bloco;
-        }
-        public bool EspecialTangivel(Cord Pos)
-        {
-            foreach(var b in Especiais)
-                if ((b.Pos == Pos || b.ProximaPos == Pos) && b.Tangivel && !ReferenceEquals(b.ProximaPos, Pos))
-                    return true;
-            return false;
-        }
-    }
-    public static class Tela
-    {
-        public static Random Rand = new Random();
-
-        public static int TamPadrao = 20;
-        public static GameWindow window;
-        public static void DesenharRetangulo(int x, int y, Color cor)
-        {
-            x = (x * +TamPadrao ) ;
-            y = (y * -TamPadrao );
-           
-            GL.Color3( cor);
-            GL.Begin(PrimitiveType.Quads);
-            GL.Vertex2(x, y);
-            GL.Vertex2(TamPadrao + x, y);
-            GL.Vertex2(TamPadrao + x, -TamPadrao + y);
-            GL.Vertex2(x, -TamPadrao + y);
-            //GL.Vertex2(x - TamPadrao / 2, y - TamPadrao / 2);
-            //GL.Vertex2(x + TamPadrao / 2, y - TamPadrao / 2);
-            //GL.Vertex2(x + TamPadrao / 2, y + TamPadrao / 2);
-            //GL.Vertex2(x - TamPadrao / 2, y + TamPadrao / 2);
-            GL.End();
-        }
-        public static void DesenharRetangulo(IMovel movel)
-        {
-            var x = (movel.Pos.x * +TamPadrao);
-            var y = (movel.Pos.y * -TamPadrao);
-            GL.Color3(movel.Estilo.Cor);
-            GL.Begin(PrimitiveType.Quads);
-            GL.Vertex2(x, y);
-            GL.Vertex2(TamPadrao + x, y);
-            GL.Vertex2(TamPadrao + x, -TamPadrao + y);
-            GL.Vertex2(x, -TamPadrao + y);
-            GL.End();
-        }
-    }
-
-    public static class Pintor
-    {
-        public static Mapa Map;
-        public static  void Ponto(Cord A, Bloco bloco) => Map.PintarGrid(A, bloco);
-        public static  void Linha(Cord A, Cord B, Bloco bloco)
-        {
-            double Distancia = Math.Sqrt( Math.Pow(A.x-B.x,2) + Math.Pow(A.y - B.y, 2));
-            double cox = (B.x - A.x) / Distancia;
-            double coy = (B.y - A.y) / Distancia;
-            Cord aux = A.GetCord();
-            Map.PintarGrid(A, bloco);
-            Map.PintarGrid(B, bloco);
-            for (int i = 1; aux.x != B.x || aux.y != B.y; i++)
-            {
-                aux.x = A.x + (int)(i * cox);
-                aux.y = A.y + (int)(i * coy);
-                Map.PintarGrid(aux, bloco);
+                TempoAnterior = tempo;
+                
+                tempo = value;
             }
         }
-       public  static  void Retangulo(Cord A, Cord B, Bloco bloco, bool Prenchido = false)
+        public static void TranferirForca(this IMovel A, IMovel B, Vetor ForcaTransferida)
         {
-            Cord Men = (
-                  A.x < B.x ? A.x : B.y,
-                  A.y < B.y ? A.y : B.y
-                );
-            Cord Mai = (
-                  A.x > B.x ? A.x : B.y, 
-                  A.y > B.y ? A.y : B.y
-                );
-            if (Prenchido)
-            {
-                for (int x = Men.x; x < Mai.x; x++)
-                    for (int y = Men.y; y < Mai.y; y++)
-                        Map.PintarGrid((x, y), bloco);
-            }
-            else
-            {
-                for (int x = Men.x; x <= Mai.x; x++)
-                {
-                    Map.PintarGrid((x, A.y), bloco);
-                    Map.PintarGrid((x, B.y), bloco);
-                }
-                for (int y = Men.y; y <= Mai.y; y++)
-                {
-                    Map.PintarGrid((A.x, y), bloco);
-                    Map.PintarGrid((B.x, y), bloco);
-                }
-            }
+            A.AplicarForca(-ForcaTransferida);
+            B.AplicarForca(ForcaTransferida);
         }
-    }
 
+        public static Random Rnd = new Random(); 
+ 
+
+    }
 
 }

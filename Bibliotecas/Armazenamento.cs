@@ -14,64 +14,123 @@ namespace Armazenamento
 {
     
     public enum TipBloco { Chao, Parede, Morte, Ponto, Teletransporte, Porta, Botao }
+    
     public static class MapasPrefeitos
     {
+        public static BateVolta Zezinho = new BateVolta((30, 30), Vetor.Baixo + Vetor.Esquerda  ,estilo: Color.Violet );
         public static Mapa GerarMapaDeTeste1()
         {
             var Map = new Mapa(21, 21);
             Map.Spawn = new Cord(Map.Tamanho.x / 2, Map.Tamanho.y / 2);
-            Pintor.Map = Map;
-            
-            Pintor.Linha(( 4, 0), ( 4, 20), new Parede());
-            Pintor.Linha((16, 0), (16, 20), new Parede());
-            Pintor.Linha(( 0, 4), (20,  4), new Parede());
-            Pintor.Linha(( 0,16), (20, 16), new Parede());
-            Pintor.Retangulo(new Cord(4, 4), new Cord(Map.Tamanho.x - 5, Map.Tamanho.y - 5), new Morte());
-            Map.Especiais = new List<IMovel>()
-            {
-                new BateVolta(  05, 05, Map, true , new Vector2(0, 1), Color.Blue   ),
-                new BateVolta(  15, 05, Map, false, new Vector2(1, 0), Color.DarkOrange) ,
-                new BateVolta(  05, 15, Map, true , new Vector2(1, 0), Color.Yellow ),
-                new BateVolta(  15, 15, Map, false, new Vector2(0, 1), Color.Violet ),
-                new Quadradinho(03, 10, Map, true , new Vector2(0, 1), Color.Violet ),
-                new Quadradinho(17, 10, Map, false, new Vector2(1, 0), Color.Violet ),
-                new Quadradinho(10, 03, Map, true , new Vector2(1, 0), Color.Violet ),
-                new Quadradinho(10, 17, Map, false, new Vector2(0, 1), Color.Violet ),
-                new Empurravel( 05, 10, Map),
-                new Empurravel( 15, 10, Map),
-                new Empurravel( 10, 05, Map),
-                new Empurravel( 10, 15, Map),
+            /*Pintor.Retangulo<Morte>(new Cord(4, 4), new Cord(Map.Tamanho.x - 5, Map.Tamanho.y - 5));*/
+            List<Porta> Portas = new List<Porta>(){
+                new Porta(new Cord(04, 10),3),
+                new Porta(new Cord(10, 04),3),
+                new Porta(new Cord(16, 10),3),
+                new Porta(new Cord(10, 16),3),
             };
+            Map.AdicionarBlocos(Portas);
+            Map.AdicionarBlocos(new IBloco[]{
+                new Parede(( 4, 0), 1, 20),
+                new Parede((16, 0), 1, 20),
+                new Parede(( 0, 4),20, 1),
+                new Parede(( 0,16), 20, 1),
 
-            Map[10, 11] = new Teletransporte(10, 19);
-            Map[10, 09] = new Teletransporte(10, 01);
-            Map[11, 10] = new Teletransporte(19, 10);
-            Map[09, 10] = new Teletransporte(01, 10);
+                new BateVolta((05, 05), Vetor.Baixo  ,estilo: Color.Blue   ),
+                new BateVolta((15, 05), Vetor.Direita,estilo: Color.DarkOrange) ,
+                new BateVolta((05, 15), Vetor.Direita,estilo: Color.Yellow ),
+                Zezinho,
 
-            Map[04, 10] = new Porta(3);
-            Map[10, 04] = new Porta(3);
-            Map[16, 10] = new Porta(3);
-            Map[10, 16] = new Porta(3);
+                new Quadradinho((03, 10), true , Vetor.Baixo  ,estilo: Color.Violet ),
+                new Quadradinho((17, 10), false, Vetor.Direita,estilo: Color.Violet ),
+                new Quadradinho((10, 03), true , Vetor.Direita,estilo: Color.Violet ),
+                new Quadradinho((10, 17), false, Vetor.Baixo  ,estilo: Color.Violet ),
+ 
 
-            Map[02, 05] = new Botao((Porta)Map[04, 10]);
-            Map[02, 10] = new Botao((Porta)Map[04, 10]);
-            Map[02, 15] = new Botao((Porta)Map[04, 10]);
-
-            Map[05, 02] = new Botao((Porta)Map[10, 04]);
-            Map[10, 02] = new Botao((Porta)Map[10, 04]);
-            Map[15, 02] = new Botao((Porta)Map[10, 04]);
-
-            Map[18, 05] = new Botao((Porta)Map[16, 10]);
-            Map[18, 10] = new Botao((Porta)Map[16, 10]);
-            Map[18, 15] = new Botao((Porta)Map[16, 10]);
-
-            Map[05, 18] = new Botao((Porta)Map[10, 16]);
-            Map[10, 18] = new Botao((Porta)Map[10, 16]);
-            Map[15, 18] = new Botao((Porta)Map[10, 16]);
+                new Teletransporte((10, 11),(10, 19)),
+                new Teletransporte((10, 09),(10, 01)),
+                new Teletransporte((11, 10),(19, 10)),
+                new Teletransporte((09, 10),(01, 10)),
+                
+                new Botao((02, 05), Portas[0]),
+                new Botao((02, 10), Portas[0]),
+                new Botao((02, 15), Portas[0]),
+                
+                new Botao((05, 02), Portas[1]),
+                new Botao((10, 02), Portas[1]),
+                new Botao((15, 02), Portas[1]),
+                
+                new Botao((18, 05), Portas[2]),
+                new Botao((18, 10), Portas[2]),
+                new Botao((18, 15), Portas[2]),
+                
+                new Botao((05, 18), Portas[3]),
+                new Botao((10, 18), Portas[3]),
+                new Botao((15, 18), Portas[3]),
+            }); 
             return Map;
         }
-        
-       
+        public static Mapa GerarMapaDeTeste2()
+        {
+            var Map = new Mapa(10* (int)Bloco.TamanhoPadrao, 10* (int)Bloco.TamanhoPadrao);
+            Map.Spawn = new Cord(Map.Tamanho.x / 2, Map.Tamanho.y / 2);
+            Map.AdicionarBlocos(new List<Bloco>
+            {
+                //new BateVolta((05*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Baixo   ),
+                //new BateVolta((15*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Direita ) ,
+                //new BateVolta((05*Bloco.TamanhoPadrao, 15*Bloco.TamanhoPadrao), Vetor.Direita ),
+                //new BateVolta((05*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Baixo   ),
+                //new BateVolta((15*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Direita ) ,
+                //new BateVolta((05*Bloco.TamanhoPadrao, 15*Bloco.TamanhoPadrao), Vetor.Direita ),
+                Zezinho,
+            });
+            return Map;
+        }
+        public static Mapa GerarMapaParticulas()
+        {
+            var Map = new Mapa(21 *(int)Bloco.TamanhoPadrao, 21 * (int)Bloco.TamanhoPadrao);
+            Map.Spawn = new Cord(0, 0); 
+            var Rnd = new Random();
+            var ColecaoCordenadas = new HashSet<Cord>();
+            //for (int i = 0; i < 100; i++)
+            //    ColecaoCordenadas.Add(new Cord(Rnd.Next((int)Map.Esquerda, (int)Map.Direita), Rnd.Next((int)Map.Cima, (int)Map.Baixo)));
+            //foreach (var Cord in ColecaoCordenadas)
+            //    Map.AdicionarBloco(new Particula(Cord,Direcao:new  Vetor(1,1)));
+
+            for (double x = -Map.Tamanho.x/2 + 20; x < Map.Tamanho.x/2 ; x+= 40)
+            {
+                EstiloBloco Estilo = EstiloBloco.Aleatorio();
+                for (double y = -Map.Tamanho.y / 2 +20; y < Map.Tamanho.y / 2; y += 40)
+                {
+                    Map.AdicionarBloco(new Particula(new Cord(x,y),estilo: Estilo));
+                }
+            }
+            return Map;
+        } 
+
+        public static  Mapa GerarMapaTestFIsica()
+        {
+            var Map = new Mapa(1000, 500);
+
+            double Aux = 0;
+            var Blocos = new Bloco[]{
+                new BateVolta(new Cord(-200, 0),(Vetor.Baixo+Vetor.Esquerda)*3),
+
+                new BateVolta(new Cord(-40,70), Vetor.Direita*2),
+                new BateVolta(new Cord( 40,70), Vetor.Esquerda*2),
+                new BateVolta(new Cord( 70,-40), Vetor.Cima *2),
+                new BateVolta(new Cord( 70,40), Vetor.Baixo*2),
+                
+                //new BateVolta(new Cord(-  0, 0)),
+                //new BateVolta(new Cord(Aux-= 20, 0)),
+                //new BateVolta(new Cord(Aux-= 20, 0)),
+                //new BateVolta(new Cord(Aux-= 20, 0)),
+                //new BateVolta(new Cord(Aux-= 20, 0)),
+                //new BateVolta(new Cord(Aux-= 20.1*2, 0), Vetor.Direita), 
+            };
+            Map.AdicionarBlocos(Blocos);
+            return Map;
+        }
     }
     public static class Arqs
     {

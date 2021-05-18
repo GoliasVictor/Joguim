@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="Armazenamento.MapasPrefeitos" Collapsed="true">
+    <Position X="17.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAASAAAAAAAAAAAAAAAEAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>Armazenamento.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Armazenamento.Arqs" Collapsed="true">
+    <Position X="17.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAICAAAIAAAAAAAEEAEAAgAAgAAAAAA=</HashCode>
+      <FileName>Armazenamento.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Biblioteca.Parede" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="10" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Biblioteca.Morte" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="19.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Biblioteca.Teletransporte" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="12.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAAAAAgAAAAAAAAAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Biblioteca.Porta" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="14.5" Y="1.75" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAIAAAIACAAAAQABAAAAAAAAAAAAIAAAAAAABA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Biblioteca.Botao" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAIAAAIAAAAAAAAAAAAAAAAAAAAAABAAwAAAAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Biblioteca.Quadradinho" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="1" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAEAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Biblioteca.BateVolta" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="5.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Biblioteca.Empurravel" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="3.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Biblioteca.Mapa" Collapsed="true">
+    <Position X="21.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAEAAAAAAIgAAAAAEAAIQQAAAAAAAAAAAAAAAACAA=</HashCode>
+      <FileName>Mapa.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Biblioteca.Tela" Collapsed="true">
+    <Position X="21.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAIAAAAAAAAAAAQAAAAAAAAIAAAAAAAAAAA=</HashCode>
+      <FileName>Tela.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Biblioteca.BlocoMovel" Collapsed="true">
+    <Position X="3.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ECAAAAEAAAIIABAAAAAEAAAAAAoCAAEAAAAAAAAAAAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+      <NewMemberFileName>Principal.cs</NewMemberFileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Biblioteca.Bloco" Collapsed="true">
+    <Position X="8.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAQAEIAAMYAAAAAAAAAAEAAAgSAEAAAAAAAAAAIAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+      <NewMemberFileName>Principal.cs</NewMemberFileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Biblioteca.Helper" Collapsed="true">
+    <Position X="19.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAABAA=</HashCode>
+      <FileName>Principal.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="Biblioteca.Cord" Collapsed="true">
+    <Position X="17.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEwAGAAgAAAACAAIAAAABgAQAAByA=</HashCode>
+      <FileName>Principal.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Biblioteca.Vetor" Collapsed="true">
+    <Position X="21.25" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AkAAQAAAAAAIgAQEYAUAAAAAAAAAAEAAAABgAAAAIAA=</HashCode>
+      <FileName>Principal.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Biblioteca.EstiloBloco" Collapsed="true">
+    <Position X="19.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAABAAAAAgAAAAAIAAAEABAGBAAAAAQABAAg=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Interface Name="Biblioteca.IBloco" Collapsed="true">
+    <Position X="0.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAQAEIAAMIAAAAAAAAAAEAAAgSAEAAAAAAAAAAIAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Biblioteca.IMovel" Collapsed="true">
+    <Position X="0.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAABAAAAAEAAAAAAIAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Biblioteca.IReceptor" Collapsed="true">
+    <Position X="17.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="Biblioteca.IJogador" Collapsed="true">
+    <Position X="0.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAACAAAABAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAA=</HashCode>
+      <FileName>Blocos.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="Armazenamento.TipBloco" Collapsed="true">
+    <Position X="17.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABAAAAAgAAAAAIAAQAABACAAAAAAAABAAA=</HashCode>
+      <FileName>Armazenamento.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

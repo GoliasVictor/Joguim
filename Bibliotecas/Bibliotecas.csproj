@@ -53,10 +53,13 @@
   <ItemGroup>
     <Compile Include="Armazenamento.cs" />
     <Compile Include="Blocos.cs" />
+    <Compile Include="Mapa.cs" />
     <Compile Include="Principal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tela.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
     <None Include="OpenTK.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\ClassDiagram1.cd" />
