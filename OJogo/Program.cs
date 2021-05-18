@@ -16,106 +16,163 @@ using OpenTK.Input;
 namespace OJogo
 {
 
-    public class Jogador : IJogador
+    public class Jogador : BlocoMovel,IJogador
     {
-        public EstiloBloco Estilo { get => Tangivel ? new EstiloBloco(Color.Blue) : new EstiloBloco(Color.White); set {; } }
-        public bool Tangivel => tangivel;
-        public bool tangivel { get; set; }
-        public Cord Pos { get; set; }
-        public Cord ProximaPos { get; set; }
+        public override EstiloBloco Estilo { get; set; }
+        (Key Up, Key Down, Key Left, Key Right) KeyDirection;
+        private bool Tangivel = true;
         public Mapa Map { get; set; }
-        public Jogador(Mapa map) { Map = map; }
+        public Jogo Jogo { get; set; }
+        public Jogador(Cord posicao, (Key Up, Key Down, Key Left, Key Right) KeyDirection, Jogo jogo, EstiloBloco? estilo = null) : base(posicao,TamanhoPadrao, TamanhoPadrao)
+        {
+            Estilo = estilo ?? new EstiloBloco(Color.Blue);
+            Jogo = jogo;
+            this.KeyDirection = KeyDirection;
+        }
         public int DanoMax => 3;
         public int DanoRecebido{ get;protected set;}
         public void Dano(int n) 
         {
             if ((DanoRecebido += n) >= DanoMax)
             {
-                ProximaPos = Map.Spawn.GetCord();
+                Mover(Jogo.Map.Spawn);
                 DanoRecebido = 0;
             }
-        }
-        
-        public  void Movimento()
+        } 
+
+        public override void Movimentar()
         {
-            if (Jogo.EstadoTeclado[Key.Up] || Jogo.EstadoTeclado[Key.Down] || Jogo.EstadoTeclado[Key.Left] || Jogo.EstadoTeclado[Key.Right] || Jogo.EstadoTeclado[Key.Q])
-            {
-                
-                if (Jogo.EstadoTeclado[Key.Q] && Jogo.EstadoTeclado[Key.Q] != Jogo.EstadoAnteriorTeclado[Key.Q])
-                    tangivel = !tangivel;
-                ProximaPos = Pos.GetCord();
-                if (Jogo.EstadoTeclado[Key.Up]) ProximaPos.y -= 1;
-                else if (Jogo.EstadoTeclado[Key.Down]) ProximaPos.y += 1;
-                else if (Jogo.EstadoTeclado[Key.Left]) ProximaPos.x -= 1;
-                else if (Jogo.EstadoTeclado[Key.Right]) ProximaPos.x += 1;
-
-                if (tangivel)
-                {
-                    Map.Interagir(this);
-                    if (Map.PosTangivel(ProximaPos))
-                        ProximaPos = Pos.GetCord();
-                }
-
-            }
+            
+            //Velocidade = default;
+            base.Movimentar();
+            if (Teclado.Apertando(KeyDirection.Up)) 
+                Velocidade += Vetor.Cima*0.01;
+            if (Teclado.Apertando(KeyDirection.Down)) 
+                Velocidade += Vetor.Baixo * 0.01;
+            if (Teclado.Apertando(KeyDirection.Left)) 
+                Velocidade += Vetor.Esquerda * 0.01;
+            if (Teclado.Apertando(KeyDirection.Right)) 
+                Velocidade += Vetor.Direita * 0.01;
+            if (Teclado.Apertou(Key.Q))
+                Tangivel = !Tangivel; 
         }
+        public override void AplicarForca(Vetor forca)
+        {
+            if (Tangivel)
+                base.AplicarForca(forca);
+        }
+ 
 
-        public void AtualizarPos() => Pos = ProximaPos.GetCord();
+    }
+    public static class Teclado
+    {
+
+        public static KeyboardState EstadoTeclado;
+        public static KeyboardState EstadoAnteriorTeclado;
+        public static bool Apertando(Key Key) => EstadoTeclado[Key];
+        public static bool Apertou(Key Key) => EstadoTeclado[Key] && !EstadoAnteriorTeclado[Key];
+        public static void Atualizar( )
+        {
+            EstadoAnteriorTeclado = EstadoTeclado;
+            EstadoTeclado = Keyboard.GetState() ;
+        }
+        public static void Atualizar(object sender, KeyboardKeyEventArgs e)
+        {
+            Atualizar();
+        }
+        public static void Atualizar(object sender, KeyPressEventArgs e)
+        {
+            Atualizar();
+        }
 
     }
     public class Jogo : GameWindow
     {
 
         public Mapa Map { get; set; }
-        public static KeyboardState EstadoTeclado;
-        public static KeyboardState EstadoAnteriorTeclado;
+        public static MouseState EstadoMouse;
+         float Zoom = 1;
+         bool Stop = true;
+         Vector3 Position;
 
+        //Jogador Jogador;
+        Vector3 Centro => new Vector3(ClientSize.Width/2,ClientSize.Height/2,0);
         public Jogo(int TamX, int TamY) : base()
         {
-            Map = MapasPrefeitos.GerarMapaDeTeste1();
-            player = new Jogador(Map);
-            player.Pos = Map.Spawn.GetCord();
-            player.ProximaPos = Map.Spawn.GetCord();
-            Map.Especiais.Insert(0, player);
-
-
+             
+            KeyDown += Teclado.Atualizar;
+            KeyUp += Teclado.Atualizar;
+            KeyPress += Teclado.Atualizar;
+            GerarMapa();
         }
 
-        public Jogador player ;
-        protected override void OnUpdateFrame(FrameEventArgs e)
-        {
-             EstadoTeclado = Keyboard.GetState();
-            foreach (var pixelMovel in Map.Especiais)
-                pixelMovel.Movimento();
-            foreach (var pixelMovel in Map.Especiais)
-                pixelMovel.AtualizarPos();
-            if (Keyboard.GetState()[Key.Escape]) Exit();
-            EstadoAnteriorTeclado = EstadoTeclado;
 
+
+        public Jogador player ;
+
+        public void GerarMapa()
+        {
+            Helper.Tempo = 0;
+
+            Map = MapasPrefeitos.GerarMapaTestFIsica();
+            //Map.AdicionarBloco(Jogador = new Jogador((0,0), (Key.Up, Key.Down, Key.Left, Key.Right), this));
+        }
+        protected override void OnMouseMove(MouseMoveEventArgs e)
+        {
+            base.OnMouseMove(e);
+            //Console.WriteLine($"x:{(-Position.X +ClientSize.Width/2- e.X ) / Zoom}, y:{-(-Position.Y+ClientSize.Height/2- e.Y ) / Zoom}");
+            if (Mouse.GetState().IsButtonDown(MouseButton.Middle))
+            {
+                Position = Position + new Vector3(e.XDelta,-e.YDelta,0) / Zoom;
+            } 
+        }
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            Console.WriteLine($"Wheeel:{e.Delta}");
+            var PlusZoom = (float)Math.Pow(e.Delta, 5) / 100.0f;
+            if(PlusZoom + Zoom< 10 && PlusZoom + Zoom > 0.01)
+                Zoom += PlusZoom;
         }
         public float ax = 0, ay = 0;
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            ClientSize = new Size(Map.Tamanho.x * Tela.TamPadrao, +Map.Tamanho.y * Tela.TamPadrao);
-
+            ClientSize = new Size((int)Map.Tamanho.x, (int)Map.Tamanho.y); 
         }
-        
+        readonly int VelocidadeTempo = 1;
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            EstadoMouse = Mouse.GetState(); 
+            //if (Helper.Tempo > 150) GerarMapa();
+            if (Teclado.Apertou(Key.Escape)) Exit();
+
+            if (Teclado.Apertou(Key.Space)) Stop = !Stop;
+            if (Teclado.Apertando(Key.Right))
+                Map.AtualizarMapa(VelocidadeTempo);
+            else if (Teclado.Apertando(Key.Left))
+                Map.AtualizarMapa(-VelocidadeTempo);
+            else if (!Stop)
+                Map.AtualizarMapa(); 
+        }
         protected override void OnRenderFrame(FrameEventArgs e) 
         {
+            
             base.OnRenderFrame(e);
-            GL.Viewport(0, 0, ClientSize.Width, ClientSize.Height);
-            Matrix4 projection = Matrix4.CreateOrthographic(ClientSize.Width, ClientSize.Height, 0.0f, 1.0f) * Matrix4.CreateTranslation(-1f, +1f, 0);
+                //Console.WriteLine($"Zoom:{Zoom}, Position:{Position}, Position*Zoom:{Position*Zoom}");
+ 
             GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadMatrix(ref projection);
+            GL.Viewport(new Point(0, 0), ClientSize);
+            GL.LoadIdentity();
+            GL.Ortho(-Centro.X-Bloco.TamanhoPadrao,Centro.X+Bloco.TamanhoPadrao, -Centro.Y- Bloco.TamanhoPadrao, Centro.Y+ Bloco.TamanhoPadrao, 0, 1);
+            GL.Scale(Zoom, Zoom, 1); 
+            GL.Translate(Position );
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
-            for (int x = 0; x < Map.Tamanho.x; x++)
-                for (int y = 0; y < Map.Tamanho.y; y++)
-                    Tela.DesenharRetangulo(x, y, Map[x, y].Estilo.Cor);
-            
-            foreach(var pixelMovel in Map.Especiais )            
-                Tela.DesenharRetangulo(pixelMovel);
+            //Tela.DesenharRetangulo(-Centro.X,-Centro.Y,ClientSize.Width,ClientSize.Height , Color.Green);
 
+            foreach ( IBloco Bloco in  Map.Blocos)
+                Tela.DesenharRetangulo(Bloco); 
 
             SwapBuffers();
         }
@@ -132,7 +189,7 @@ namespace OJogo
                 game.VSync = VSyncMode.Adaptive;
                 Tela.window = game;
                 game.WindowBorder = WindowBorder.Fixed;
-                game.Run(10.0, 0.0);
+                game.Run(60,120);
             }
         }
     }
