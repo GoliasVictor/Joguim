@@ -3,8 +3,8 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using static Biblioteca.Helper;
-namespace Biblioteca
+using static Engine.Helper;
+namespace Engine
 {
     [Serializable] 
     public class Mapa
@@ -80,7 +80,7 @@ namespace Biblioteca
                     Colidir(bloco, OutroBloco);
         }
         readonly double Steps = 1;
-        public void AtualizarMapa(int VelocidadeTempo = 1)
+        public void AtualizarMapa(double VelocidadeTempo = 1)
         {
             St.Start();
             for (int T = 0; T < Steps; T++)
@@ -104,10 +104,10 @@ namespace Biblioteca
                 //}
                 foreach (IMovel BlocoMovel in GetBlocosMoveis().Where((M) => M.ProximaPos != M.Posicao))
                     BlocoMovel.AtualizarPos();
-
+                
             }
             St.Stop();
-            Console.WriteLine(St.ElapsedTicks);
+            //Console.WriteLine(St.ElapsedTicks);
             St.Restart();
             //Vetor VelocidadeTotal = default;
             //foreach (IMovel movel in GetBlocosMoveis())

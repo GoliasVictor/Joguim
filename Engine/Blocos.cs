@@ -3,14 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL;
-using OpenTK;
-using OpenTK.Input;
-using static Biblioteca.Helper;
+using System.Drawing; 
+using static Engine.Helper;
 
-namespace Biblioteca
+namespace Engine
 {
 
     [Serializable]
@@ -87,9 +83,10 @@ namespace Biblioteca
 
         }
         public virtual void Colidir(IMovel Colisor)
-        { 
-            Colisor.AplicarForca(-Colisor.Velocidade * (CalcularDirecao(Colisor) * Colisor.Velocidade.Normalizar()));
- 
+        {
+            Vetor Dir = CalcularDirecao(Colisor);
+            ParedeVelocidade += Colisor.Velocidade;
+            Colisor.AplicarForca(Colisor.Velocidade * -2 );
         }
 
         protected Vetor CalcularDirecao(IBloco Colisor)
@@ -101,7 +98,6 @@ namespace Biblioteca
             if (Colisor.Baixo < Cima) DirecaoColisao += Vetor.Baixo;
             return DirecaoColisao;
         }
-
         public virtual double Esquerda => Posicao.x - Largura/2;
         public virtual double Direita => Posicao.x + Largura/2;
         public virtual double Cima => Posicao.y - Altura/2;
@@ -143,12 +139,12 @@ namespace Biblioteca
             ForcaAplicada = default;
             Posicao = ProximaPos;
         }
+ 
         public override void Colidir(IMovel Colisor)
         {
-            base.Colidir(Colisor);
-            Vetor DirecaoColisao = CalcularDirecao(Colisor);
-            Colisor.AplicarForca(         Velocidade*(DirecaoColisao *         Velocidade.Normalizar()) );
-            AplicarForca(-Velocidade * (DirecaoColisao * Velocidade.Normalizar()));
+            //base.Colidir(Colisor);
+            Helper.TranferirForca(this, Colisor, Velocidade);
+            //TransferirEnergia(Colisor,  Velocidade * (DirecaoColisao * Velocidade.Normalizar()));
         }
    
         public void Mover(Cord NovaPosicao) => Posicao = NovaPosicao;
