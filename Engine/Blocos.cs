@@ -86,16 +86,20 @@ namespace Engine
         {
             Vetor Dir = CalcularDirecao(Colisor);
             ParedeVelocidade += Colisor.Velocidade;
-            Colisor.AplicarForca(Colisor.Velocidade * -2 );
+            Colisor.AplicarForca(new Vetor(Colisor.Velocidade.x * Dir.x, Colisor.Velocidade.y * Dir.y));
         }
 
         protected Vetor CalcularDirecao(IBloco Colisor)
         {
-            Vetor DirecaoColisao = default;
-            if (Colisor.Esquerda > Direita) DirecaoColisao += Vetor.Direita;
-            if (Colisor.Esquerda < Direita) DirecaoColisao += Vetor.Esquerda;
-            if (Colisor.Baixo > Cima) DirecaoColisao += Vetor.Cima;
-            if (Colisor.Baixo < Cima) DirecaoColisao += Vetor.Baixo;
+            Vetor DirecaoColisao = new Vetor(0,0);
+            if(( Esquerda <  Colisor.Esquerda  && Colisor.Esquerda < Direita 
+              || Esquerda <  Colisor.Direita   && Colisor.Direita  < Direita) 
+              && (Cima > Colisor.Posicao.y  || Colisor.Posicao.y  > Baixo)) 
+                DirecaoColisao.y = -2;
+            else if(( Cima < Colisor.Cima  && Colisor.Cima  < Baixo
+              || Cima < Colisor.Baixo && Colisor.Baixo < Baixo) 
+              && (Esquerda > Colisor.Posicao.x  || Colisor.Posicao.x  > Direita) ) 
+                DirecaoColisao.x = -2;
             return DirecaoColisao;
         }
         public virtual double Esquerda => Posicao.x - Largura/2;

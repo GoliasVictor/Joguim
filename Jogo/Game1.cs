@@ -11,7 +11,7 @@ namespace Jogo
     {
 
         Mapa Map { get; set; }
-        readonly double VelocidadeTempo = 0.1;
+        readonly double VelocidadeTempo = 1;
         Desenhista Desenhista;
         bool Stop = true;
         Camera Camera;
@@ -30,7 +30,7 @@ namespace Jogo
         public void GerarMapa()
         {
             Tempo = 0; 
-            Map = MapasPrefeitos.GerarMapaTestFIsica();
+            Map = MapasPrefeitos.GerarMapaParticulas();
             //Map.AdicionarBloco(Jogador = new Jogador((0,0), (Key.Up, Key.Down, Key.Left, Key.Right), this));
         }
 
