@@ -111,7 +111,6 @@ namespace Armazenamento
         {
             var Map = new Mapa(1000, 500);
 
-            double Aux = 0;
             var Blocos = new Bloco[]{
                 new BateVolta(new Cord(-200, 0),(Vetor.Baixo+Vetor.Esquerda)*3),
 
