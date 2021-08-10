@@ -32,6 +32,7 @@ namespace Engine
         public static readonly Vetor Cima = new Vetor(0, 1);
         public static readonly Vetor Baixo = new Vetor(0, -1);
         public static Vetor operator *(Vetor A, double Escalar) => new Vetor(A.x * Escalar, A.y * Escalar);
+        public static Vetor operator *(double Escalar,Vetor A) => new Vetor(A.x * Escalar, A.y * Escalar);
         public static Vetor operator /(Vetor A, double Escalar) => new Vetor(A.x / Escalar, A.y / Escalar);
         public static Vetor operator +(Vetor A, Vetor B) => new Vetor(A.x + B.x, A.y + B.y);
         public static Vetor operator -(Vetor A, Vetor B) => new Vetor(A.x - B.x, A.y - B.y);
@@ -71,7 +72,7 @@ namespace Engine
             z = cz;
         }
         public override string ToString() => $"{{x:{x}, y:{y}}}";
-
+        public static Cord NaN = new Cord(double.NaN, double.NaN, double.NaN);
         public static bool operator ==(Cord a, Cord b) => a.x == b.x && a.y == b.y;
         public static bool operator !=(Cord a, Cord b) => !(a == b);
         public static bool operator >(Cord a, Cord b) => a.x > b.x && a.y > b.y;

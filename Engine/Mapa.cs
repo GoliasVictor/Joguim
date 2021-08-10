@@ -27,7 +27,9 @@ namespace Engine
             Blocos.Add(new Parede(new Cord(0,Cima - Grossura / 2), TamX + Grossura , Grossura));
             Blocos.Add(new Parede(new Cord(0,Baixo + Grossura / 2), TamX + Grossura, Grossura));
         }
-  
+        public void MorteParticula(Particula particula){
+            Blocos.Remove(particula);
+        }
         public void AdicionarBloco(IBloco bloco)
         {
             Blocos.Add(bloco);
@@ -79,13 +81,15 @@ namespace Engine
                 if(!ReferenceEquals(bloco,OutroBloco) && Colidindo(bloco, OutroBloco))
                     Colidir(bloco, OutroBloco);
         }
-        readonly double Steps = 1;
+        readonly double Steps = 2;
         public void AtualizarMapa(double VelocidadeTempo = 1)
         {
+            var TotalSteps = Steps* Math.Abs(VelocidadeTempo);
+            var DeltaT = 1 /(Steps * VelocidadeTempo);
             St.Start();
-            for (int T = 0; T < Steps; T++)
+            for (int T = 0; T < TotalSteps; T++)
             {
-                Tempo += VelocidadeTempo * (1 / Steps);
+                Tempo += DeltaT;
                 IEnumerable<IMovel> BlocosMoveis = GetBlocosMoveis();
 
                 Parallel.ForEach(BlocosMoveis, (IMovel BlocoMovel) =>
