@@ -38,7 +38,7 @@ namespace Jogo
 
             _texture = new Texture2D(GraphicsDevice, 1, 1);
             var AuxCor = bloco.Estilo.Cor;
-            var Cor = new Color(AuxCor.R, AuxCor.G, AuxCor.B);
+            var Cor = new Color(AuxCor.R, AuxCor.G, AuxCor.B, AuxCor.A);
             _texture.SetData(new Color[] { Cor });
             var Pos = new Point(
                 (int)(bloco.Posicao.x - bloco.Largura / 2),

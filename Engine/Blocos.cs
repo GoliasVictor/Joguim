@@ -13,7 +13,7 @@ namespace Engine
     public struct EstiloBloco
     {
         public Color Cor { get; set; }
-        public EstiloBloco(Color color) => Cor = Color.FromArgb(127, color);
+        public EstiloBloco(Color color) => Cor = color;
         public static Color Aleatorio() => Color.FromArgb(Rnd.Next(255), Rnd.Next(255), Rnd.Next(255));
 
         public static EstiloBloco parede = new EstiloBloco(Color.FromArgb(101, 67, 33));
@@ -86,7 +86,7 @@ namespace Engine
         {
             Vetor Dir = CalcularDirecao(Colisor);
             ParedeVelocidade += Colisor.Velocidade;
-            Colisor.AplicarForca(new Vetor(Colisor.Velocidade.x * Dir.x, Colisor.Velocidade.y * Dir.y));
+            Colisor.AplicarForca(2 * new Vetor(Colisor.ProximaVelocidade.x * Dir.x, Colisor.ProximaVelocidade.y * Dir.y));
         }
 
         protected Vetor CalcularDirecao(IBloco Colisor)
@@ -95,11 +95,11 @@ namespace Engine
             if(( Esquerda <  Colisor.Esquerda  && Colisor.Esquerda < Direita 
               || Esquerda <  Colisor.Direita   && Colisor.Direita  < Direita) 
               && (Cima > Colisor.Posicao.y  || Colisor.Posicao.y  > Baixo)) 
-                DirecaoColisao.y = -2;
+                DirecaoColisao.y = -1;
             else if(( Cima < Colisor.Cima  && Colisor.Cima  < Baixo
               || Cima < Colisor.Baixo && Colisor.Baixo < Baixo) 
               && (Esquerda > Colisor.Posicao.x  || Colisor.Posicao.x  > Direita) ) 
-                DirecaoColisao.x = -2;
+                DirecaoColisao.x = -1;
             return DirecaoColisao;
         }
         public virtual double Esquerda => Posicao.x - Largura/2;
@@ -282,18 +282,40 @@ namespace Engine
     }
     public class Particula : BateVolta
     {
-        public int TempoVida;
-        public Particula(Cord posicao,int? tempoVida = null,Vetor? Direcao = null, EstiloBloco? estilo = null) : base(posicao, null, 5, 5, estilo)
+        public override Cord Posicao {
+            get => Vivo ? base.Posicao : Cord.NaN;
+            protected set {
+                if(Vivo)
+                    base.Posicao = value;
+            }
+        }
+        public bool Vivo => TempoVidaMax > TempoVida ;
+        public double TempoVidaMax;
+        public double TempoVida => Tempo - MomentoCriacao ;
+        public event Action<Particula> Morte;
+        double MomentoCriacao;
+        void OnMorte()
         {
+            Morte?.Invoke(this);
+        }
+        public void ZerarCriacao(){
+            MomentoCriacao = Tempo;
+        }
+        public Particula(Cord posicao, Action<Particula> HandlerMorte = null, int? TempoVidaMax = null,Vetor? Direcao = null, EstiloBloco? estilo = null) : base(posicao, null, 5, 5, estilo)
+        {
+            Morte += HandlerMorte;
+            ZerarCriacao();
             Estilo = estilo ?? new EstiloBloco(Color.White);
             Velocidade = Direcao ?? new Vetor(Rnd.NextDouble() * 2 - 1, Rnd.NextDouble() * 2 - 1).Normalizar();
-            TempoVida = tempoVida ?? Rnd.Next(50, 200); 
+            this.TempoVidaMax = TempoVidaMax ?? Rnd.Next(0, 1000); 
+            Posicao = posicao;
 
         }
         public override void Movimentar()
         {
             base.Movimentar();
-            TempoVida--;  
+            if(!Vivo)
+                OnMorte();
         }
     }
 }
