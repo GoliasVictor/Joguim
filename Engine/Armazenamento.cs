@@ -88,15 +88,8 @@ namespace Armazenamento
         public static Mapa GerarMapaParticulas()
         {
             
-            var Map = new Mapa(11 *(int)Bloco.TamanhoPadrao, 11 * (int)Bloco.TamanhoPadrao);
+            var Map = new Mapa(21 *(int)Bloco.TamanhoPadrao, 21 * (int)Bloco.TamanhoPadrao);
             Map.Spawn = new Cord(0, 0); 
-            var Rnd = new Random();
-            var ColecaoCordenadas = new HashSet<Cord>();
-            //for (int i = 0; i < 100; i++)
-            //    ColecaoCordenadas.Add(new Cord(Rnd.Next((int)Map.Esquerda, (int)Map.Direita), Rnd.Next((int)Map.Cima, (int)Map.Baixo)));
-            //foreach (var Cord in ColecaoCordenadas)
-            //    Map.AdicionarBloco(new Particula(Cord,Direcao:new  Vetor(1,1)));
-            
             for (double x = -Map.Tamanho.x/2 + 20; x < Map.Tamanho.x/2 ; x+= 40)
             {
                 EstiloBloco Estilo = EstiloBloco.Aleatorio();

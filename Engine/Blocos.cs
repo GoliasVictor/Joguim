@@ -48,13 +48,15 @@ namespace Engine
 
 
     }
-    public interface IMovel : IBloco
+    public interface IAtualizavel : IBloco 
+    {
+        void Atualizar();
+    }
+    public interface IMovel : IAtualizavel
     {
         Vetor Velocidade { get; }
         Vetor ProximaVelocidade { get; }
-        void Movimentar();
         void Mover(Cord Posicao);
-        void AtualizarPos();
         void AplicarForca(Vetor forca);
     }
 
@@ -70,7 +72,6 @@ namespace Engine
     public abstract class Bloco : IBloco
     {
         public const double TamanhoPadrao = 20;
-
         public virtual Cord Posicao { get; protected set; }
         public virtual Cord ProximaPos => Posicao;
         public virtual EstiloBloco Estilo { get; set; } = new EstiloBloco(Color.Black);
@@ -80,7 +81,6 @@ namespace Engine
         {
             if (Colisor is IMovel movel)
                 Colidir(movel);
-
         }
         public virtual void Colidir(IMovel Colisor)
         {
@@ -135,9 +135,8 @@ namespace Engine
         public virtual Vetor ProximaVelocidade => Velocidade + ForcaAplicada;
         protected virtual Vetor ForcaAplicada { get; set; }
         public override Cord ProximaPos => Posicao + ProximaVelocidade * DeltaTempo; 
-        public virtual void Movimentar() { }
         public virtual void AplicarForca(Vetor forca) => ForcaAplicada += forca;
-        public virtual void AtualizarPos()
+        public virtual void Atualizar()
         {
             Velocidade = ProximaVelocidade ;
             ForcaAplicada = default;
@@ -294,7 +293,7 @@ namespace Engine
         public double TempoVida => Tempo - MomentoCriacao ;
         public event Action<Particula> Morte;
         double MomentoCriacao;
-        void OnMorte()
+        void Morrer()
         {
             Morte?.Invoke(this);
         }
@@ -311,11 +310,11 @@ namespace Engine
             Posicao = posicao;
 
         }
-        public override void Movimentar()
+        public override void Atualizar()
         {
-            base.Movimentar();
+            base.Atualizar();
             if(!Vivo)
-                OnMorte();
+                Morrer();
         }
     }
 }
