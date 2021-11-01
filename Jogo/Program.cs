@@ -13,7 +13,7 @@ using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
-namespace OJogo
+namespace Jogo
 {
 
     public class Jogador : IJogador
