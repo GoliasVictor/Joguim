@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{6663772A-105B-4172-B8E7-8343F3944EB7}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>OJogo</RootNamespace>
-    <AssemblyName>OJogo</AssemblyName>
+    <RootNamespace>Jogo</RootNamespace>
+    <AssemblyName>Jogo</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -62,9 +62,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bibliotecas\Bibliotecas.csproj">
+    <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{59e61524-4d5e-426c-81fb-460ff4aaaea6}</Project>
-      <Name>Bibliotecas</Name>
+      <Name>Engine</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

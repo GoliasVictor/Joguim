@@ -88,13 +88,13 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bibliotecas\Bibliotecas.csproj">
+    <ProjectReference Include="..\Engine\Engine.csproj">
       <Project>{59e61524-4d5e-426c-81fb-460ff4aaaea6}</Project>
-      <Name>Bibliotecas</Name>
+      <Name>Engine</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OJogo\OJogo.csproj">
+    <ProjectReference Include="..\Jogo\Jogo.csproj">
       <Project>{6663772a-105b-4172-b8e7-8343f3944eb7}</Project>
-      <Name>OJogo</Name>
+      <Name>Jogo</Name>
     </ProjectReference>
     <ProjectReference Include="..\Test\Test.csproj">
       <Project>{279deecf-f44b-4246-8559-2d59f95081b3}</Project>
