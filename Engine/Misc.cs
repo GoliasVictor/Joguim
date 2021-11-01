@@ -27,6 +27,7 @@ namespace Engine
             x = cord.x;
             y = cord.y;
         }
+        public static readonly Vetor Zero = new Vetor(0, 0);
         public static readonly Vetor Esquerda = new Vetor(-1, 0);
         public static readonly Vetor Direita = new Vetor(1, 0);
         public static readonly Vetor Cima = new Vetor(0, 1);
@@ -104,6 +105,8 @@ namespace Engine
 
     public static class Helper
     {
+        public const double TamanhoPadrao = 20;
+
         private static double tempo = 0;
         public static double TempoAnterior { get; private set; }
         public static double DeltaTempo => Tempo - TempoAnterior;
@@ -120,8 +123,8 @@ namespace Engine
         }
         public static void TranferirForca(this IMovel A, IMovel B, Vetor ForcaTransferida)
         {
-            A.AplicarForca(-ForcaTransferida);
-            B.AplicarForca(ForcaTransferida);
+            A.Mov.AplicarForca(-ForcaTransferida);
+            B.Mov.AplicarForca(ForcaTransferida);
         }
 
         public static Random Rnd = new Random();

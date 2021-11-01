@@ -8,11 +8,11 @@ using System.Drawing;
 using Newtonsoft.Json.Linq;
 using Engine;
 using System; 
+using static Engine.Helper;
 
 namespace Armazenamento
 {
     
-    public enum TipBloco { Chao, Parede, Morte, Ponto, Teletransporte, Porta, Botao }
     
     public static class MapasPrefeitos
     {
@@ -28,8 +28,8 @@ namespace Armazenamento
                 new Porta(new Cord(16, 10),3),
                 new Porta(new Cord(10, 16),3),
             };
-            Map.AdicionarBlocos(Portas);
-            Map.AdicionarBlocos(new IBloco[]{
+            Map.AdicionarEntidades(Portas);
+            Map.AdicionarEntidades(new IEntidade[]{
                 new Parede(( 4, 0), 1, 20),
                 new Parede((16, 0), 1, 20),
                 new Parede(( 0, 4),20, 1),
@@ -71,16 +71,16 @@ namespace Armazenamento
         }
         public static Mapa GerarMapaDeTeste2()
         {
-            var Map = new Mapa(10* (int)Bloco.TamanhoPadrao, 10* (int)Bloco.TamanhoPadrao);
+            var Map = new Mapa(10* (int)TamanhoPadrao, 10* (int)TamanhoPadrao);
             Map.Spawn = new Cord(Map.Tamanho.x / 2, Map.Tamanho.y / 2);
-            Map.AdicionarBlocos(new List<Bloco>
+            Map.AdicionarEntidades(new List<Entidade>
             {
-                //new BateVolta((05*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Baixo   ),
-                //new BateVolta((15*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Direita ) ,
-                //new BateVolta((05*Bloco.TamanhoPadrao, 15*Bloco.TamanhoPadrao), Vetor.Direita ),
-                //new BateVolta((05*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Baixo   ),
-                //new BateVolta((15*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Direita ) ,
-                //new BateVolta((05*Bloco.TamanhoPadrao, 15*Bloco.TamanhoPadrao), Vetor.Direita ),
+                //new BateVolta((05*TamanhoPadrao, 05*TamanhoPadrao), Vetor.Baixo   ),
+                //new BateVolta((15*TamanhoPadrao, 05*TamanhoPadrao), Vetor.Direita ) ,
+                //new BateVolta((05*TamanhoPadrao, 15*TamanhoPadrao), Vetor.Direita ),
+                //new BateVolta((05*TamanhoPadrao, 05*TamanhoPadrao), Vetor.Baixo   ),
+                //new BateVolta((15*TamanhoPadrao, 05*TamanhoPadrao), Vetor.Direita ) ,
+                //new BateVolta((05*TamanhoPadrao, 15*TamanhoPadrao), Vetor.Direita ),
                 Zezinho,
             });
             return Map;
@@ -88,14 +88,14 @@ namespace Armazenamento
         public static Mapa GerarMapaParticulas()
         {
             
-            var Map = new Mapa(21 *(int)Bloco.TamanhoPadrao, 21 * (int)Bloco.TamanhoPadrao);
+            var Map = new Mapa(21 *(int)TamanhoPadrao, 21 * (int)TamanhoPadrao);
             Map.Spawn = new Cord(0, 0); 
             for (double x = -Map.Tamanho.x/2 + 20; x < Map.Tamanho.x/2 ; x+= 40)
             {
-                EstiloBloco Estilo = EstiloBloco.Aleatorio();
+                Estilo Estilo = Estilo.Aleatorio();
                 for (double y = -Map.Tamanho.y / 2 +20; y < Map.Tamanho.y / 2; y += 40)
                 {
-                    Map.AdicionarBloco(new Particula(new Cord(x,y), Map.MorteParticula, estilo: Estilo));
+                    Map.AdicionarEntidade(new Particula((x,y), Map.MorteParticula, estilo: Estilo));
                 }
             }
             return Map;
@@ -105,7 +105,7 @@ namespace Armazenamento
         {
             var Map = new Mapa(1000, 500);
 
-            var Blocos = new Bloco[]{
+            var entidades = new Entidade[]{
                 new BateVolta(new Cord(-200, 0),(Vetor.Baixo+Vetor.Esquerda)*3),
 
                 new BateVolta(new Cord(-40,70), Vetor.Direita*2),
@@ -120,7 +120,7 @@ namespace Armazenamento
                 //new BateVolta(new Cord(Aux-= 20, 0)),
                 //new BateVolta(new Cord(Aux-= 20.1*2, 0), Vetor.Direita), 
             };
-            Map.AdicionarBlocos(Blocos);
+            Map.AdicionarEntidades(entidades);
             return Map;
         }
     }

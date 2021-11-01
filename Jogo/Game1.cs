@@ -11,6 +11,8 @@ namespace Jogo
     {
 
         Mapa Map { get; set; }
+        Jogador Jogador;
+
         readonly double VelocidadeTempo = 1;
         Desenhista Desenhista;
         bool Stop = true;
@@ -22,6 +24,7 @@ namespace Jogo
 
         public Game1() : base()
         {
+
             GerarMapa();
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -31,14 +34,15 @@ namespace Jogo
         {
             Tempo = 0; 
             Map = MapasPrefeitos.GerarMapaParticulas();
-            //Map.AdicionarBloco(Jogador = new Jogador((0,0), (Key.Up, Key.Down, Key.Left, Key.Right), this));
+            
+           // Map.AdicionarEntidade(Jogador = new Jogador((50,50), estilo: Estilo.Player));
         }
 
         protected override void Initialize()
         {
             _graphics.IsFullScreen = false;
-            _graphics.PreferredBackBufferWidth = (int)(Map.Tamanho.x+ 2* Bloco.TamanhoPadrao);
-            _graphics.PreferredBackBufferHeight = (int)(Map.Tamanho.y + 2 * Bloco.TamanhoPadrao);
+            _graphics.PreferredBackBufferWidth = (int)(Map.Tamanho.x+ 2* TamanhoPadrao);
+            _graphics.PreferredBackBufferHeight = (int)(Map.Tamanho.y + 2 * TamanhoPadrao);
             _graphics.ApplyChanges();
             Camera = new Camera(_graphics.GraphicsDevice.Viewport);
 
@@ -59,18 +63,20 @@ namespace Jogo
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            
+
             Teclado.Atualizar();
             ControladorMouse.Atualizar();
+
+            
             AtualizarZoom();
             if (Teclado.Apertou(Keys.Space))
                 Stop = !Stop;
-            if (Teclado.Apertando(Keys.Right))
-                Map.AtualizarMapa(VelocidadeTempo);
-            else if (Teclado.Apertando(Keys.Left))
-                Map.AtualizarMapa(-VelocidadeTempo);
+            //if (Teclado.Apertando(Keys.Right))            
+            //    Map.AtualizarMapa(VelocidadeTempo);
+            //else if (Teclado.Apertando(Keys.Left))
+            //    Map.AtualizarMapa(-VelocidadeTempo);
             else if (!Stop)
-                Map.AtualizarMapa(1);
+                Map.AtualizarMapa(Keyboard.GetState(),Mouse.GetState());
 
             base.Update(gameTime);
         } 
@@ -79,8 +85,8 @@ namespace Jogo
             GraphicsDevice.Clear(Color.Black);
             Desenhista.Iniciar(Camera.Transform);
 
-            foreach (IBloco Bloco in Map.Blocos)
-                Desenhista.DesenharBloco(Bloco);
+            foreach (IEntidade entidade in Map.Entidades)
+                Desenhista.Desenhar(entidade);
 
             Desenhista.Finalizar();
             base.Draw(gameTime);

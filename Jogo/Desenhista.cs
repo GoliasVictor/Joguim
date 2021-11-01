@@ -30,20 +30,20 @@ namespace Jogo
             SpriteBatch.End();
             Desenhando = false;
         }
-        public void DesenharBloco(IBloco bloco)
+        public void Desenhar(IEntidade entidade)
         {
             if (!Desenhando)
                 throw new Exception("Não Está Desenhando");
             Texture2D _texture;
 
             _texture = new Texture2D(GraphicsDevice, 1, 1);
-            var AuxCor = bloco.Estilo.Cor;
+            var AuxCor = entidade.Estilo.Cor;
             var Cor = new Color(AuxCor.R, AuxCor.G, AuxCor.B, AuxCor.A);
             _texture.SetData(new Color[] { Cor });
             var Pos = new Point(
-                (int)(bloco.Posicao.x - bloco.Largura / 2),
-                (int)(bloco.Posicao.y - bloco.Altura / 2));
-            var Tam = new Point((int)bloco.Largura, (int)bloco.Altura);
+                (int)(entidade.Pos.x - entidade.Tam.Largura / 2),
+                (int)(entidade.Pos.y - entidade.Tam.Altura / 2));
+            var Tam = new Point((int)entidade.Tam.Largura, (int)entidade.Tam.Altura);
             SpriteBatch.Draw(_texture, new Rectangle(Pos, Tam), Color.White);
 
         }
