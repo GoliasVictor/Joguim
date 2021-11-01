@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static Engine.Helper;
 using System.Collections.Concurrent;
+using Microsoft.Xna.Framework.Input;
 
 namespace Engine
 {
@@ -13,7 +14,7 @@ namespace Engine
     {
 
         Stopwatch St = new Stopwatch();
-        public readonly HashSet<IBloco> Blocos = new HashSet<IBloco>();   
+        public readonly HashSet<IEntidade> Entidades = new HashSet<IEntidade>();   
         public readonly (double x, double y) Tamanho;
         public Cord Spawn { get; set; } = (1, 1);
         public  double Esquerda => -Tamanho.x/2;
@@ -22,85 +23,87 @@ namespace Engine
         public  double Baixo => Tamanho.y / 2;
         public Mapa(int TamX, int TamY)
         {
-            Tamanho =  (TamX - Bloco.TamanhoPadrao, TamY - Bloco.TamanhoPadrao);
-            var Grossura = Bloco.TamanhoPadrao;
-            Blocos.Add(new Parede(new Cord(Esquerda-Grossura/2, 0), Grossura, TamY + Grossura ));
-            Blocos.Add(new Parede(new Cord(Direita + Grossura / 2, 0), Grossura, TamY + Grossura ));
-            Blocos.Add(new Parede(new Cord(0,Cima - Grossura / 2), TamX + Grossura , Grossura));
-            Blocos.Add(new Parede(new Cord(0,Baixo + Grossura / 2), TamX + Grossura, Grossura));
+            Tamanho =  (TamX - TamanhoPadrao, TamY - TamanhoPadrao);
+            var Grossura = TamanhoPadrao;
+            Entidades.Add(new Parede(new Cord(Esquerda-Grossura/2, 0), Grossura, TamY + Grossura ));
+            Entidades.Add(new Parede(new Cord(Direita + Grossura / 2, 0), Grossura, TamY + Grossura ));
+            Entidades.Add(new Parede(new Cord(0,Cima - Grossura / 2), TamX + Grossura , Grossura));
+            Entidades.Add(new Parede(new Cord(0,Baixo + Grossura / 2), TamX + Grossura, Grossura));
         }
         public void MorteParticula(Particula particula){
-            Blocos.Remove(particula);
+            Entidades.Remove(particula);
         }
-        public void AdicionarBloco(IBloco bloco)
+        public void AdicionarEntidade(IEntidade entidade)
         {
-            Blocos.Add(bloco);
+            Entidades.Add(entidade);
         }
-        public void AdicionarBlocos(IEnumerable<IBloco> blocos)
+        public void AdicionarEntidades(IEnumerable<IEntidade> entidades)
         {
-            foreach (IBloco Bloco in blocos)
-                Blocos.Add(Bloco);
+            foreach (IEntidade entidade in entidades)
+                Entidades.Add(entidade);
         }
-        static bool Colidindo(IBloco A, IBloco B)
+        static bool Colidindo(PosicaoLados A, PosicaoLados B)
         {
-            return A.ProximaDireita > B.ProximaEsquerda && A.ProximaCima < B.ProximaBaixo
-                && B.ProximaDireita > A.ProximaEsquerda && B.ProximaCima < A.ProximaBaixo;
+            return A.Direita > B.Esquerda && A.Cima < B.Baixo
+                && B.Direita > A.Esquerda && B.Cima < A.Baixo;
         } 
-        static void Colidir(IBloco A, IBloco B)
+        static void Colidir(IColisivel A, IColisivel B)
         {  
             B.Colidir(A);
             A.Colidir(B);
         }
         #region ColisaoParalela 
-        static void ColidirParalelo(IEnumerable<IBloco> blocos){
-            var Sublists = blocos.Select((B) => new List<IBloco>(){B});
-            ColidirEJuntar(new ConcurrentStack<List<IBloco>>(Sublists));
+        static void ColidirParalelo(IEnumerable<IColisivel> entidades){
+            var Sublists = entidades.Select((B) => new List<IColisivel>(){B});
+            ColidirEJuntar(new ConcurrentStack<List<IColisivel>>(Sublists));
         }
-        static ConcurrentStack<List<IBloco>> ColidirEJuntar(ConcurrentStack<List<IBloco>> StackListsBloco){
-            var ListasUnidas =  new ConcurrentStack<List<IBloco>>();
+        static ConcurrentStack<List<IColisivel>> ColidirEJuntar(ConcurrentStack<List<IColisivel>> StackListsEntidade){
+            var ListasUnidas =  new ConcurrentStack<List<IColisivel>>();
             List<Task> Tasks =  new List<Task>();
-            while(StackListsBloco.Count > 1){
-                StackListsBloco.TryPop(out var A);
-                StackListsBloco.TryPop(out var B);
+            while(StackListsEntidade.Count > 1){
+                StackListsEntidade.TryPop(out var A);
+                StackListsEntidade.TryPop(out var B);
                 Tasks.Add( Task.Run(()=>{
                     ListasUnidas.Push(ColidirEJuntarLists(A,B));
                 }));
             }
-            if(StackListsBloco.Count == 1){
-                StackListsBloco.TryPop(out var Lista);
+            if(StackListsEntidade.Count == 1){
+                StackListsEntidade.TryPop(out var Lista);
                 ListasUnidas.Push(Lista);
             }
             Task.WhenAll(Tasks).Wait();
             return ListasUnidas.Count < 2 ? ListasUnidas : ColidirEJuntar(ListasUnidas);
         }
-        static List<IBloco> ColidirEJuntarLists(List<IBloco> Blocos1,List<IBloco> Blocos2){
-            if(Blocos2 is null)
-                return Blocos1;
-            if(Blocos1 is null)
-                return Blocos2;
-            Parallel.ForEach(Blocos1,(A)=>{
-                foreach (var B in Blocos2)
-                    if(Colidindo(A, B))
+        static List<IColisivel> ColidirEJuntarLists(List<IColisivel> entidades1,List<IColisivel> entidades2){
+            if(entidades2 is null)
+                return entidades1;
+            if(entidades1 is null)
+                return entidades2;
+            
+            Parallel.ForEach(entidades1,(A)=>{
+                foreach (var B in entidades2)
+                    if(Colidindo(A.Lados, B.Lados))
                         Colidir(A, B);
             });            
-            return Blocos1.Union(Blocos2).ToList();
+            return entidades1.Union(entidades2).ToList();
         }
         #endregion
-        static void Colidir(IEnumerable<IBloco> blocos)
+        static void Colidir(IEnumerable<IColisivel> entidades, double DeltaT)
         {
-            if (blocos is null)
-                throw new ArgumentNullException(nameof(blocos));
-            var Blocos = new Stack<IBloco>(blocos);
-            while(Blocos.Count > 0)
+            if (entidades is null)
+                throw new ArgumentNullException(nameof(entidades));
+            var stackEntidades = new Stack<IColisivel>(entidades);
+            while(stackEntidades.Count > 0)
             {
-                var A = Blocos.Pop();
-                foreach (var B in Blocos)
-                    if(Colidindo(A, B))
+                var A = stackEntidades.Pop();
+                foreach (var B in stackEntidades)
+                    if(Colidindo(A is IMovel Am? Am.Mov.ProximosLados(DeltaT) : B.Lados, 
+                                 B is IMovel Bm? Bm.Mov.ProximosLados(DeltaT) : B.Lados))
                         Colidir(A, B);
             }
         }
-        readonly double Steps = 2;
-        public void AtualizarMapa(double VelocidadeTempo = 1)
+        const double Steps = 2;
+        public void AtualizarMapa(KeyboardState teclado, MouseState mouse,double VelocidadeTempo = 1)
         {
             
             var TotalSteps = Steps * Math.Abs(VelocidadeTempo);
@@ -109,10 +112,11 @@ namespace Engine
             for (int T = 0; T < TotalSteps; T++)
             {
                 Tempo += DeltaT;
-                Colidir(Blocos);
-                Parallel.ForEach(  BlocosAtualizaveis, 
-                    (BlocoAtualizavel) =>  BlocoAtualizavel.Atualizar() 
-                );
+                Colidir(Entidades.OfType<IColisivel>(), DeltaT);
+                Parallel.ForEach( Entidades.OfType<IInputable>(),(E)=>{
+                    E.Inputs.Atualizar(teclado, mouse);
+                });
+                Parallel.ForEach( Entidades, (Entidade) =>  Entidade.Atualizar(DeltaT));
             }
             St.Stop();
             LogTicks(St.ElapsedTicks);
@@ -123,15 +127,14 @@ namespace Engine
             
             ListTicks.Add(Ticks);
             var Media = ListTicks.Sum((T) => T/ListTicks.Count());
-            Console.WriteLine($"{Math.Log2(Media):000000000} ~ {Math.Log2(Ticks):000000000}");
+            Console.WriteLine($"{Media:000000000} ~ {Ticks:000000000}");
         }
         private void MostrarVelocidade(){
             Vetor VelocidadeTotal = default;
-            foreach (IMovel movel in BlocosMoveis)
-                VelocidadeTotal += movel.Velocidade;
+            foreach (IMovel movel in entidadesMoveis)
+                VelocidadeTotal += movel.Mov.Velocidade;
             Console.WriteLine(VelocidadeTotal + ParedeVelocidade);
         }
-        private IEnumerable<IAtualizavel> BlocosAtualizaveis => Blocos.OfType<IAtualizavel>();
-		private IEnumerable<IMovel> BlocosMoveis => Blocos.OfType<IMovel>();
+		private IEnumerable<IMovel> entidadesMoveis => Entidades.OfType<IMovel>();
 	} 
 }
