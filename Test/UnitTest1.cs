@@ -10,18 +10,15 @@ namespace Test
    
     [TestClass]
     public class TestBin
-    {
-        static Porta AuxPorta = new Porta(2);
-        static Botao AuxBotao = new Botao(AuxPorta);
+    { 
         static Mapa Map = new Mapa(21, 21);
         
-        [TestMethod] public void TestSalvarBin1() => SalvarBin(new Cord(1, 3), "BinTestMethod2");
-        [TestMethod] public void TestSalvarBin2() => SalvarBin(new Morte(), "BinTestMethod2");
-        [TestMethod] public void TestSalvarBin3() => SalvarBin((B: AuxBotao, A: AuxPorta), "BinTestMethod3");
+        [TestMethod] public void TestSalvarBin1() => SalvarBin(new Cord(1, 3), "BinTestMethod2");  
         [TestMethod] public void TestSalvarBin4() {
             
           
         }
+        
         //[TestMethod]
         //public void TestCarregarBin0()
         //{
@@ -48,8 +45,7 @@ namespace Test
         {
             var Aux = CarregarBin<( Botao b, Porta p)>("BinTestMethod3");
             Assert.AreEqual(false, Aux.p.Aberta,"Botao antes");
-            Assert.AreEqual(false, Aux.b.Prescionado, "Botao antes");
-            Aux.b.Interagir();
+            Assert.AreEqual(false, Aux.b.Prescionado, "Botao antes"); 
 
             Assert.AreEqual( true, Aux.b.Prescionado,"Botao depois");
             Assert.AreEqual( true, Aux.p.Aberta,"Porta depois");
@@ -78,7 +74,13 @@ namespace Test
             NomeArquivos.Sort((a, b) => { return Extensao(a).CompareTo(Extensao(b)); });
             NomeArquivos.ForEach((a) => Console.WriteLine(a));
         }
+        [TestMethod]
+        public void TestCriacao()
+        {
+
+        }
     }
+
 
 }
 
