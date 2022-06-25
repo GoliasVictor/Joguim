@@ -26,7 +26,6 @@ namespace Engine
 	public class Movimento : IComponente
 	{
 		readonly IMovel Self;
-		private Vetor velocidade;
 		
 
 		public Movimento(IMovel self, Vetor velocidade = default)
@@ -34,17 +33,21 @@ namespace Engine
 			Self = self;
 			Velocidade = velocidade;
 			ForcaAplicada = Vetor.Zero;
+			ProximaPosicao = Self.Pos;
 		}
 
 		public Vetor Velocidade { get;set; }
+		private Cord ProximaPosicao;
+		private PosicaoLados proximosLados;
 		public Vetor ProximaVelocidade => Velocidade + ForcaAplicada;
-		public Cord ProximaPos(double DeltaTempo)
+		
+		Cord CalcProximaPos(double DeltaTempo)
 		{
 			return Self.Pos + Velocidade * DeltaTempo;
 		}
 		public PosicaoLados ProximosLados(double DeltaTempo)
 		{
-			return new(ProximaPos(DeltaTempo), Self.Tam);
+			return proximosLados;
 		}
 		private Vetor ForcaAplicada { get; set; }
 		public void AplicarForca(Vetor forca) => ForcaAplicada += forca;
@@ -52,7 +55,9 @@ namespace Engine
 		{
 			Velocidade = ProximaVelocidade;
 			ForcaAplicada = default;
-			Self.Pos = ProximaPos(DeltaTempo);
+			Self.Pos = CalcProximaPos(DeltaTempo);
+			ProximaPosicao = CalcProximaPos(DeltaTempo);
+			proximosLados =  new(ProximaPosicao, Self.Tam);
 		}
 	}
 	public struct Tamanho : IComponente {

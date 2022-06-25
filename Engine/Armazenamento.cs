@@ -89,15 +89,18 @@ namespace Armazenamento
         {
             
             var Map = new Mapa(21 *(int)TamanhoPadrao, 21 * (int)TamanhoPadrao);
-            Map.Spawn = new Cord(0, 0); 
-            for (double x = -Map.Tamanho.x/2 + 20; x < Map.Tamanho.x/2 ; x+= 40)
+            Map.Spawn = new Cord(0, 0);
+            Map.AdicionarEntidade(new Parede((10, 0), 5, 100));
+
+            for (double x = -Map.Tamanho.x/2 + 20; x < Map.Tamanho.x/2 ; x+= 20)
             {
                 Estilo Estilo = Estilo.Aleatorio();
-                for (double y = -Map.Tamanho.y / 2 +20; y < Map.Tamanho.y / 2; y += 40)
+                for (double y = -Map.Tamanho.y / 2 +20; y < Map.Tamanho.y / 2; y += 20)
                 {
                     Map.AdicionarEntidade(new Particula((x,y), Map.MorteParticula, estilo: Estilo));
                 }
             }
+
             return Map;
         } 
 
