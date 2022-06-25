@@ -90,7 +90,8 @@ namespace Armazenamento
             
             var Map = new Mapa(21 *(int)TamanhoPadrao, 21 * (int)TamanhoPadrao);
             Map.Spawn = new Cord(0, 0);
-            Map.AdicionarEntidade(new Parede((10, 0), 5, 100));
+            Map.AdicionarEntidade(new Parede((10, 10), 5, 200));
+            Map.AdicionarEntidade(new Parede((10, 10), 200, 5));
 
             for (double x = -Map.Tamanho.x/2 + 20; x < Map.Tamanho.x/2 ; x+= 20)
             {

@@ -6,6 +6,7 @@ using System.Linq;
 using static Engine.Helper;
 using System.Collections.Concurrent;
 using Microsoft.Xna.Framework.Input;
+using System.Runtime.CompilerServices;
 
 namespace Engine
 {
@@ -88,20 +89,48 @@ namespace Engine
             return entidades1.Union(entidades2).ToList();
         }
         #endregion
+
+        struct WraperColisao {
+            public readonly PosicaoLados Lados;
+            public readonly IColisivel Entidade;
+            public readonly bool Estatico;
+
+            public WraperColisao(IColisivel entidade)
+            {
+                Entidade = entidade;
+                if (entidade is IMovel entidadeMovel)
+                {
+                    Lados = entidadeMovel.Mov.ProximosLados;
+                    Estatico = false;
+                }
+                else
+                {
+                    Lados = entidade.Lados;
+                    Estatico = true;
+                }
+            }
+        }
         static void Colidir(IEnumerable<IColisivel> entidades, double DeltaT)
         {
             if (entidades is null)
                 throw new ArgumentNullException(nameof(entidades));
-            var stackEntidades = new Stack<IColisivel>(entidades);
-            while(stackEntidades.Count > 0)
+            var EntidadesWrapers = entidades.Select(e => new WraperColisao(e)).ToArray();
+            for(int i = 0; i < EntidadesWrapers.Length; i ++)
             {
-                var A = stackEntidades.Pop();
-                foreach (var B in stackEntidades)
-                    if(Colidindo(A is IMovel Am? Am.Mov.ProximosLados(DeltaT) : B.Lados, 
-                                 B is IMovel Bm? Bm.Mov.ProximosLados(DeltaT) : B.Lados))
-                        Colidir(A, B);
+                WraperColisao A = EntidadesWrapers[i];
+                for (int j = i; j < EntidadesWrapers.Length; j++)
+                {
+                    WraperColisao B = EntidadesWrapers[j];
+                    if (A.Estatico && B.Estatico)
+                        continue;
+                    
+                    var EstaColidindo = Colidindo(A.Lados, B.Lados);
+                    if (EstaColidindo)
+                        Colidir(A.Entidade, B.Entidade);
+                }
             }
         }
+
         const double Steps = 2;
         public void AtualizarMapa(KeyboardState teclado, MouseState mouse,double VelocidadeTempo = 1)
         {
@@ -112,14 +141,18 @@ namespace Engine
             for (int T = 0; T < TotalSteps; T++)
             {
                 Tempo += DeltaT;
-                Colidir(Entidades.OfType<IColisivel>(), DeltaT);
-                foreach(var Entidade in Entidades.OfType<IInputable>())
+                var Colisiveis = Entidades.OfType<IColisivel>();
+                Colidir(Colisiveis, DeltaT);
+                Parallel.ForEach(Entidades.OfType<IInputable>(), (Entidade) =>
+                {
                     Entidade.Inputs.Atualizar(teclado, mouse);
+                });
                 
                 foreach (var Entidade in Entidades)
                     Entidade.Atualizar(DeltaT);
             }
             St.Stop();
+            //MostrarVelocidade();
             //LogTicks(St.ElapsedTicks);
             St.Restart();
         }   
@@ -132,8 +165,18 @@ namespace Engine
         }
         private void MostrarVelocidade(){
             Vetor VelocidadeTotal = default;
+            IMovel MaisRapido = entidadesMoveis.First();
             foreach (IMovel movel in entidadesMoveis)
-                VelocidadeTotal += movel.Mov.Velocidade;
+            {
+                movel.Estilo = System.Drawing.Color.White;
+                var vel= movel.Mov.Velocidade;
+                if (MaisRapido.Mov.Velocidade.Tamanho <= vel.Tamanho)
+                    MaisRapido = movel;
+                if(!double.IsNaN(vel.x) && !double.IsNaN(vel.y))
+                    VelocidadeTotal +=  movel.Mov.Velocidade;
+            }
+            MaisRapido.Estilo = System.Drawing.Color.Red;
+            Console.WriteLine("maior velocidade: " + MaisRapido); 
             Console.WriteLine(VelocidadeTotal + ParedeVelocidade);
         }
 		private IEnumerable<IMovel> entidadesMoveis => Entidades.OfType<IMovel>();
