@@ -11,15 +11,18 @@ namespace Jogo
     {
         private SpriteBatch SpriteBatch;
         private GraphicsDevice GraphicsDevice;
-         
+        public Texture2D WhiteTexture { get; protected set; }
         public bool Desenhando { get; private set; }
 
         public Desenhista(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice)
         {
             SpriteBatch = spriteBatch ?? throw new ArgumentNullException(nameof(spriteBatch));
             GraphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
+            WhiteTexture = new Texture2D(GraphicsDevice, 1, 1);
+            WhiteTexture.SetData(new Color[] { Color.White });
         }
 
+  
         public void Iniciar(Matrix MatrixTransformacao)
         {
             SpriteBatch.Begin(transformMatrix: MatrixTransformacao);
@@ -34,18 +37,18 @@ namespace Jogo
         {
             if (!Desenhando)
                 throw new Exception("Não Está Desenhando");
-            Texture2D _texture;
+ 
 
-            _texture = new Texture2D(GraphicsDevice, 1, 1);
-            var AuxCor = entidade.Estilo.Cor;
-            var Cor = new Color(AuxCor.R, AuxCor.G, AuxCor.B, AuxCor.A);
-            _texture.SetData(new Color[] { Cor });
+          
+            var Cor = entidade.Estilo.Cor;
             var Pos = new Point(
                 (int)(entidade.Pos.x - entidade.Tam.Largura / 2),
                 (int)(entidade.Pos.y - entidade.Tam.Altura / 2));
             var Tam = new Point((int)entidade.Tam.Largura, (int)entidade.Tam.Altura);
-            SpriteBatch.Draw(_texture, new Rectangle(Pos, Tam), Color.White);
+            SpriteBatch.Draw(WhiteTexture, new Rectangle(Pos, Tam), new Color(Cor.R, Cor.G, Cor.B));
 
         }
+
+  
     }
 }

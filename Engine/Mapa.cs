@@ -113,13 +113,14 @@ namespace Engine
             {
                 Tempo += DeltaT;
                 Colidir(Entidades.OfType<IColisivel>(), DeltaT);
-                Parallel.ForEach( Entidades.OfType<IInputable>(),(E)=>{
-                    E.Inputs.Atualizar(teclado, mouse);
-                });
-                Parallel.ForEach( Entidades, (Entidade) =>  Entidade.Atualizar(DeltaT));
+                foreach(var Entidade in Entidades.OfType<IInputable>())
+                    Entidade.Inputs.Atualizar(teclado, mouse);
+                
+                foreach (var Entidade in Entidades)
+                    Entidade.Atualizar(DeltaT);
             }
             St.Stop();
-            LogTicks(St.ElapsedTicks);
+            //LogTicks(St.ElapsedTicks);
             St.Restart();
         }   
         List<double> ListTicks = new List<double>();
