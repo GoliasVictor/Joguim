@@ -2,8 +2,7 @@ namespace Engine
 {
 	public interface IEntidade 
 	{
-		Estilo Estilo{get;set;}
-		Cord Pos { get; set;}
+		Vetor Pos { get; set;}
 		Tamanho Tam {get;set;}
 		PosicaoLados Lados {get;}
 		void Atualizar(double DeltaTempo);
@@ -13,19 +12,14 @@ namespace Engine
 	}
 	public interface IInputable
 	{
-		Inputs Inputs {get;}
+		IInputs Inputs {get;set;}
 	}
 	public interface IMovel : IEntidade
 	{
-		Movimento Mov { get;}
+		IMovimento Mov { get;}
 	}
 	public interface IReceptor : IEntidade
     {
         void Receber(object e);
-    }
-	public interface IJogador : IMovel,IInputable
-    {
-        void Dano(int n);
-        void Mover(Cord NovaPosicao);
     }
 }

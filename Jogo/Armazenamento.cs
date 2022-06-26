@@ -3,12 +3,12 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
-using System.Drawing;
 using Engine;
 using System; 
 using static Engine.Helper;
+using Microsoft.Xna.Framework;
 
-namespace Armazenamento
+namespace Jogo
 {
     
     
@@ -17,26 +17,26 @@ namespace Armazenamento
 
         static void AdicionarParedes(Mapa mapa, double grossura)
         {
+            var Lados = mapa.PosicaoLados;
             mapa.AdicionarEntidades( new[]{
-                new Parede(new Cord(mapa.Esquerda + grossura / 2, 0), grossura, mapa.Tamanho.y ),
-                new Parede(new Cord(mapa.Direita  - grossura / 2, 0), grossura, mapa.Tamanho.y ),
-                new Parede(new Cord(0 ,mapa.Cima  + grossura / 2   ), mapa.Tamanho.x, grossura),
-                new Parede(new Cord(0 ,mapa.Baixo - grossura / 2   ), mapa.Tamanho.x, grossura),
+                new Parede(new Vetor(Lados.Esquerda + grossura / 2, 0), grossura, mapa.Tamanho.Altura ),
+                new Parede(new Vetor(Lados.Direita  - grossura / 2, 0), grossura, mapa.Tamanho.Altura ),
+                new Parede(new Vetor(0 ,Lados.Cima  + grossura / 2   ), mapa.Tamanho.Largura, grossura),
+                new Parede(new Vetor(0 ,Lados.Baixo - grossura / 2   ), mapa.Tamanho.Largura, grossura),
             });
         }
         public static Mapa GerarMapaDeTeste1()
         {
             var Map = new Mapa(21, 21);
-            Map.Spawn = new Cord(Map.Tamanho.x / 2, Map.Tamanho.y / 2);
             Map.PixelPorUnidade = 20;
             /*Pintor.Retangulo<Morte>(new Cord(4, 4), new Cord(Map.Tamanho.x - 5, Map.Tamanho.y - 5));*/
             AdicionarParedes(Map, 1);
             
             List<Porta> Portas = new List<Porta>(){
-                new Porta(new Cord(04-10, 10-10),3,null,null,1,1),
-                new Porta(new Cord(10-10, 04-10),3,null,null,1,1),
-                new Porta(new Cord(16-10, 10-10),3,null,null,1,1),
-                new Porta(new Cord(10-10, 16-10),3,null,null,1,1),
+                new Porta(new Vetor(04-10, 10-10),3,null,null,1,1),
+                new Porta(new Vetor(10-10, 04-10),3,null,null,1,1),
+                new Porta(new Vetor(16-10, 10-10),3,null,null,1,1),
+                new Porta(new Vetor(10-10, 16-10),3,null,null,1,1),
             };
             Map.AdicionarEntidades(Portas);
             Map.AdicionarEntidades(new IEntidade[]{
@@ -56,10 +56,10 @@ namespace Armazenamento
                 new Quadradinho((10-10, 17-10), false, Vetor.Baixo  ,1,1,estilo: Color.Violet ),
  
 
-                new Teletransporte((10-10, 11-10),(10-10, 18-10),null,1,1),
-                new Teletransporte((10-10, 09-10),(10-10, 00-10),null,1,1),
-                new Teletransporte((11-10, 10-10),(18-10, 10-10),null,1,1),
-                new Teletransporte((09-10, 10-10),(00-10, 10-10),null,1,1),
+                new Teletransporte(( 0, 1),(  0, -8),null,1,1),
+                new Teletransporte(( 0,-1),(  0,  8),null,1,1),
+                new Teletransporte(( 1, 0),( -8,  0),null,1,1),
+                new Teletransporte((-1, 0),(  8,  0),null,1,1),
                 
                 new Botao((02-10, 05-10), Portas[0],1,1),
                 new Botao((02-10, 10-10), Portas[0],1,1),
@@ -76,22 +76,21 @@ namespace Armazenamento
                 new Botao((05-10, 18-10), Portas[3],1,1),
                 new Botao((10-10, 18-10), Portas[3],1,1),
                 new Botao((15-10, 18-10), Portas[3],1,1),
-                new Jogador((0,0),1,1)
+                new Jogador((0,0),0.5,1,1)
             }); 
             return Map;
         }
         public static Mapa GerarMapaDeTeste2()
         {
             var Map = new Mapa(10* (int)TP, 10* (int)TP);
-            Map.Spawn = new Cord(Map.Tamanho.x / 2, Map.Tamanho.y / 2);
             Map.AdicionarEntidades(new List<Entidade>
             {
-                //new BateVolta((05*TamanhoPadrao, 05*TamanhoPadrao), Vetor.Baixo   ),
-                //new BateVolta((15*TamanhoPadrao, 05*TamanhoPadrao), Vetor.Direita ) ,
-                //new BateVolta((05*TamanhoPadrao, 15*TamanhoPadrao), Vetor.Direita ),
-                //new BateVolta((05*TamanhoPadrao, 05*TamanhoPadrao), Vetor.Baixo   ),
-                //new BateVolta((15*TamanhoPadrao, 05*TamanhoPadrao), Vetor.Direita ) ,
-                //new BateVolta((05*TamanhoPadrao, 15*TamanhoPadrao), Vetor.Direita ),
+                new BateVolta((05*TP, 05*TP), Vetor.Baixo   ),
+                new BateVolta((15*TP, 05*TP), Vetor.Direita ) ,
+                new BateVolta((05*TP, 15*TP), Vetor.Direita ),
+                new BateVolta((05*TP, 05*TP), Vetor.Baixo   ),
+                new BateVolta((15*TP, 05*TP), Vetor.Direita ) ,
+                new BateVolta((05*TP, 15*TP), Vetor.Direita ),
             });
             return Map;
         }
@@ -100,7 +99,6 @@ namespace Armazenamento
             var Tamanho = 40*TP;
             var Map = new Mapa(Tamanho+TP, Tamanho+TP);
             AdicionarParedes(Map,TP);
-            Map.Spawn = new Cord(0, 0);
             Map.PixelPorUnidade = 0.5;
 
             var N = 10 ;
@@ -108,8 +106,8 @@ namespace Armazenamento
             for (double rx = 0; rx < Tamanho; rx+= Gap){
                 Estilo Estilo = Estilo.Aleatorio();
                 for (double ry = 0 ; ry < Tamanho; ry += Gap) {
-                    var posicao =  new Cord(rx, ry) + new Vetor(1,1) * ( -Tamanho/2 + Gap/2);
-                    Map.AdicionarEntidade(new Particula(posicao, Map.MorteParticula ,double.PositiveInfinity,velocidade: 2, estilo: Estilo));
+                    var posicao =  new Vetor(rx, ry) + new Vetor(1,1) * ( -Tamanho/2 + Gap/2);
+                    Map.AdicionarEntidade(new Particula(posicao, Map.RemoverEntidade ,double.PositiveInfinity,velocidade: 2, estilo: Estilo));
                 }
             }
             return Map;
@@ -119,7 +117,6 @@ namespace Armazenamento
         {
             var Tamanho = 40*TP;
             var Map = new Mapa(Tamanho+TP, Tamanho+TP);
-            Map.Spawn = new Cord(0, 0);
             Map.PixelPorUnidade = 0.5;
             Map.AdicionarEntidade(new Parede((0, 0), TP, Tamanho));
             Map.AdicionarEntidade(new Parede((0, 0), Tamanho, TP));
@@ -132,9 +129,9 @@ namespace Armazenamento
                 Estilo Estilo = Estilo.Aleatorio();
                 for (double ry = 0 ; ry < Tamanho; ry += Gap)
                 {
-                    var posicao =  new Cord(rx, ry) + new Vetor(1,1) * ( -Tamanho/2 + Gap/2);
+                    var posicao =  new Vetor(rx, ry) + new Vetor(1,1) * ( -Tamanho/2 + Gap/2);
                     Map.AdicionarEntidade(new Particula(posicao, 
-                        Map.MorteParticula,
+                        Map.RemoverEntidade,
                         double.PositiveInfinity, 
                         velocidade: (ry+rx)*(ry+rx)/500000 , 
                         estilo: Estilo
@@ -151,12 +148,12 @@ namespace Armazenamento
             Map.PixelPorUnidade = 1;
             AdicionarParedes(Map, TP);
             var entidades = new Entidade[]{
-                new BateVolta(new Cord(-200, 0),(Vetor.Baixo+Vetor.Esquerda)*3),
+                new BateVolta(new Vetor(-200, 0),(Vetor.Baixo+Vetor.Esquerda)*3),
 
-                new BateVolta(new Cord(-40,70), Vetor.Direita*2),
-                new BateVolta(new Cord( 40,70), Vetor.Esquerda*2),
-                new BateVolta(new Cord( 70,-40), Vetor.Cima *2),
-                new BateVolta(new Cord( 70,40), Vetor.Baixo*2),
+                new BateVolta((-40,70), Vetor.Direita*2),
+                new BateVolta(( 40,70), Vetor.Esquerda*2),
+                new BateVolta(( 70,-40), Vetor.Cima *2),
+                new BateVolta(( 70,40), Vetor.Baixo*2),
                 
                 //new BateVolta(new Cord(-  0, 0)),
                 //new BateVolta(new Cord(Aux-= 20, 0)),
