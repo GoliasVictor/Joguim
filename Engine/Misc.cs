@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Drawing;
 using static Engine.Helper;
-
+using static System.Math;
 
 namespace Engine
 {
@@ -18,20 +18,24 @@ namespace Engine
         public Vetor(double x, double y)
         {
             this.x = x;
-            this.y = y;
-            //this.x += (Rnd.NextDouble() - 0.5) * 0.00000001;
-            //this.y += (Rnd.NextDouble() - 0.5) * 0.00000001;
+            this.y = y; 
         }
         public Vetor(Cord cord)
         {
             x = cord.x;
             y = cord.y;
         }
+        public static Vetor Polar(double Magnetude, double Angulo){
+            var x = Magnetude * Cos(Angulo);
+            var y = Magnetude * Sin(Angulo);
+            return new Vetor(x,y);
+        }
         public static readonly Vetor Zero = new Vetor(0, 0);
+        public static readonly Vetor NaN = new Vetor(double.NaN, double.NaN);
         public static readonly Vetor Esquerda = new Vetor(-1, 0);
         public static readonly Vetor Direita = new Vetor(1, 0);
-        public static readonly Vetor Cima = new Vetor(0, 1);
-        public static readonly Vetor Baixo = new Vetor(0, -1);
+        public static readonly Vetor Cima = new Vetor(0, -1);
+        public static readonly Vetor Baixo = new Vetor(0, 1);
         public static Vetor operator *(Vetor A, double Escalar) => new Vetor(A.x * Escalar, A.y * Escalar);
         public static Vetor operator *(double Escalar,Vetor A) => new Vetor(A.x * Escalar, A.y * Escalar);
         public static Vetor operator /(Vetor A, double Escalar) => new Vetor(A.x / Escalar, A.y / Escalar);
@@ -39,10 +43,10 @@ namespace Engine
         public static Vetor operator -(Vetor A, Vetor B) => new Vetor(A.x - B.x, A.y - B.y);
         public static double operator *(Vetor A, Vetor B) => A.x * B.x + A.y * B.y;
         public static Vetor operator -(Vetor v) => new Vetor(-v.x, -v.y);
-        public static bool operator <(Vetor A, Vetor B) => A.Tamanho < B.Tamanho;
-        public static bool operator >(Vetor A, Vetor B) => A.Tamanho > B.Tamanho;
+        public static bool operator == (Vetor A, Vetor B) => A.x == B.x && A.y == B.y;
+        public static bool operator != (Vetor A, Vetor B) => A.x != B.x || A.y != B.y;
         public static explicit operator Vetor(Cord p) => new Vetor(p.x, p.y);
-        public double Tamanho => Math.Sqrt(Math.Pow(x, 2) + Math.Pow(y, 2));
+        public double Tamanho => Sqrt(Pow(x, 2) + Pow(y, 2));
         public override string ToString() => $"{{x:{x}, y:{y}}}";
         public Vetor Normalizar()
         {
@@ -105,7 +109,7 @@ namespace Engine
 
     public static class Helper
     {
-        public const double TamanhoPadrao = 20;
+        public const double TP = 20;
 
         private static double tempo = 0;
         public static double TempoAnterior { get; private set; }

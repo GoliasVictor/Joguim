@@ -11,13 +11,11 @@ namespace Jogo
     {
 
         Mapa Map { get; set; }
-        Jogador Jogador;
-
         readonly double VelocidadeTempo = 1;
         Desenhista Desenhista;
         bool Stop = true;
         Camera Camera;
-
+        Color Background ;
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -41,10 +39,13 @@ namespace Jogo
         protected override void Initialize()
         {
             _graphics.IsFullScreen = false;
-            _graphics.PreferredBackBufferWidth = (int)(Map.Tamanho.x+ 2* TamanhoPadrao);
-            _graphics.PreferredBackBufferHeight = (int)(Map.Tamanho.y + 2 * TamanhoPadrao);
+            _graphics.PreferredBackBufferWidth = (int)(Map.Tamanho.x*Map.PixelPorUnidade);
+            _graphics.PreferredBackBufferHeight = (int)(Map.Tamanho.y *Map.PixelPorUnidade);
             _graphics.ApplyChanges();
             Camera = new Camera(_graphics.GraphicsDevice.Viewport);
+            Camera.Zoom = (float)(Map.PixelPorUnidade);
+            var bg = Map.Background.Cor;
+            Background =  new Color(bg.R,bg.G, bg.B);
 
             base.Initialize();
         }
@@ -57,10 +58,11 @@ namespace Jogo
         protected void AtualizarZoom()
         {
             var DeltaWheel = ControladorMouse.DeltaWheelValue / 100f;
-            Camera.Zoom += (float)Math.Pow(DeltaWheel , 3) / 100.0f; 
+            Camera.Zoom *= (float)Math.Pow(1.1,DeltaWheel); 
         }
         protected override void Update(GameTime gameTime)
         {
+
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
@@ -82,8 +84,9 @@ namespace Jogo
         } 
         protected override void Draw(GameTime gameTime)
         { 
-            GraphicsDevice.Clear(Color.Black);
-            Desenhista.Iniciar(Camera.Transform);
+
+            GraphicsDevice.Clear(Background);
+            Desenhista.Iniciar(Camera.Transform); 
 
             foreach (IEntidade entidade in Map.Entidades)
                 Desenhista.Desenhar(entidade);

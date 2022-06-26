@@ -25,7 +25,6 @@ namespace Engine
     }
 	public interface IJogador : IMovel,IInputable
     {
-        Mapa Map { get; }
         void Dano(int n);
         void Mover(Cord NovaPosicao);
     }

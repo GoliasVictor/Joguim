@@ -17,31 +17,54 @@ namespace Engine
 		public virtual Tamanho Tam { get ; set; }
         public virtual PosicaoLados Lados => new PosicaoLados(Pos, Tam);
         public virtual void Atualizar(double DeltaTempo){}
-        public Entidade(Cord posicao, double largura = TamanhoPadrao, double altura= TamanhoPadrao, Estilo estilo =  default )
+        public Entidade(Cord posicao, double largura = TP, double altura= TP, Estilo estilo =  default )
         {
             Pos = posicao;
             Tam = new Tamanho(this, largura, altura);
             Estilo = estilo;
         }
     }
-    public class Jogador : Entidade, IInputable, IMovel, IColisivel
+    public class Jogador : Entidade, IInputable, IMovel, IColisivel, IJogador
 	{
 		public Inputs Inputs {get;init;}
         public Movimento Mov {get;init;}
-		public Jogador(Cord posicao, double largura = TamanhoPadrao, double altura = TamanhoPadrao, Estilo estilo = default) : base(posicao, largura, altura, estilo)
+        public double magnetudeVelocidade;
+
+		public Jogador(Cord posicao, double velocidade = 1, double largura = TP, double altura = TP, Estilo? estilo = default) : base(posicao, largura, altura,estilo ?? Color.Red)
 		{
             Mov =  new Movimento(this, Vetor.Zero);
             Inputs =  new Inputs();
+            magnetudeVelocidade = velocidade;
+            
         }
         public void Colidir(IEntidade colisor){
             Colisao.Movel(this,colisor);
-        }
-        public Vetor VelocidadeDirecionais;
+        }  
 
 		public override void Atualizar(double DeltaTempo)
 		{
             Mov.Atualizar(DeltaTempo);
-            throw new NotImplementedException();
+            Vetor Direcao = Vetor.Zero ;
+            
+            
+            Direcao += Inputs.EstaPresionada(Keys.Down ) ? 0.01*Vetor.Baixo    : Vetor.Zero;
+            Direcao += Inputs.EstaPresionada(Keys.Up   ) ? 0.01*Vetor.Cima     : Vetor.Zero ;
+            Direcao += Inputs.EstaPresionada(Keys.Right) ? 0.01*Vetor.Direita  : Vetor.Zero ;
+            Direcao += Inputs.EstaPresionada(Keys.Left ) ? 0.01*Vetor.Esquerda : Vetor.Zero;
+            
+            Mov.Velocidade =Direcao != Vetor.Zero ? Direcao.Normalizar() : Vetor.Zero;
+            
+            
+		}
+
+		public void Dano(int n)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Mover(Cord NovaPosicao)
+		{
+            Pos =  NovaPosicao; 
 		}
 	}
     [Serializable]
@@ -49,7 +72,7 @@ namespace Engine
     {
 
         public void Colidir(IEntidade Colisor) => Colisao.Estatica(this, Colisor);
-        public Parede(Cord posicao, double largura = TamanhoPadrao, double altura= TamanhoPadrao, Estilo? estilo = default) 
+        public Parede(Cord posicao, double largura = TP, double altura= TP, Estilo? estilo = default) 
         : base (posicao, largura, altura, estilo ?? Estilo.parede)
         {
         }
@@ -64,7 +87,7 @@ namespace Engine
                 ((IJogador)Colisor).Dano(1);
              Colisao.Estatica(this, Colisor);
         }
-        public Morte(Cord posicao, double largura = TamanhoPadrao, double altura = TamanhoPadrao, Estilo? estilo = null)  
+        public Morte(Cord posicao, double largura = TP, double altura = TP, Estilo? estilo = null)  
             : base (posicao, largura,altura, estilo ?? Estilo.Morte)
         {  
         }
@@ -73,7 +96,7 @@ namespace Engine
     public class Teletransporte : Entidade, IColisivel
     { 
         public Cord Saida; 
-        public Teletransporte(Cord posicao, Cord saida , Estilo? estilo = null, double largura = TamanhoPadrao, double altura = TamanhoPadrao) 
+        public Teletransporte(Cord posicao, Cord saida , Estilo? estilo = null, double largura = TP, double altura = TP) 
             : base (posicao, largura,altura, estilo ?? Estilo.Teletransporte)
         { 
             Saida = saida;
@@ -93,6 +116,7 @@ namespace Engine
         public bool Aberta => RequesitosCompletos >= ResquisitosNescessarios;
         private int ResquisitosNescessarios { get; set; }
         private int RequesitosCompletos { get; set; }
+        public override Estilo Estilo => Aberta ? EstiloAberta :  EstiloFechada;
         public void Receber(object e)
         {
             RequesitosCompletos++;
@@ -105,7 +129,7 @@ namespace Engine
         } 
         
 
-        public Porta(Cord posicao, int resquisitosNescessarios, Estilo? estiloFechada = null, Estilo? estiloAberta = null, double largura = TamanhoPadrao, double altura = TamanhoPadrao) 
+        public Porta(Cord posicao, int resquisitosNescessarios, Estilo? estiloFechada = null, Estilo? estiloAberta = null, double largura = TP, double altura = TP) 
             :base(posicao, altura, largura, Estilo.parede)
         {
             EstiloFechada = estiloFechada ?? new Estilo(Color.SaddleBrown);
@@ -134,7 +158,7 @@ namespace Engine
 
 		public void Atualizar(long DeltaTempo){}
 
-		public Botao(Cord posicao, IReceptor receptor, double largura = TamanhoPadrao, double altura = TamanhoPadrao, Estilo? estilo = null) 
+		public Botao(Cord posicao, IReceptor receptor, double largura = TP, double altura = TP, Estilo? estilo = null) 
         : base(posicao, largura, altura, estilo ?? Estilo.Botao)
         {
             Receptor = receptor; 
@@ -154,7 +178,7 @@ namespace Engine
 
         }
 
-		public Quadradinho(Cord posicao, bool horarioAntihoriario, Vetor direcao, double largura = TamanhoPadrao, double altura = TamanhoPadrao, Estilo? estilo = null) 
+		public Quadradinho(Cord posicao, bool horarioAntihoriario, Vetor direcao, double largura = TP, double altura = TP, Estilo? estilo = null) 
          :base(posicao, largura, altura, estilo ?? Estilo.Aleatorio())
         {
             HorarioAntihoriario = horarioAntihoriario;
@@ -165,7 +189,7 @@ namespace Engine
     [Serializable]
     public class BateVolta :Entidade,  IMovel, IColisivel
     {   
-        public BateVolta(Cord posicao, Vetor?  Direcao = null, double largura=TamanhoPadrao, double altura= TamanhoPadrao, Estilo? estilo = null)
+        public BateVolta(Cord posicao, Vetor?  Direcao = null, double largura=TP, double altura= TP, Estilo? estilo = null)
             :base(posicao,largura,altura, estilo ??  Estilo.Aleatorio())
         {
             Mov = new Movimento(this,Direcao ?? default); 
@@ -179,6 +203,7 @@ namespace Engine
             Colisao.Movel(this, Colisor);
 		}
 	}
+ 
     public class Particula : Entidade, IMovel, IColisivel
     { 
         public Movimento Mov {get;}  
@@ -201,13 +226,13 @@ namespace Engine
         public void ZerarCriacao(){
             MomentoCriacao = Tempo;
         }
-        public Particula(Cord posicao, Action<Particula> HandlerMorte = null, int? tempoVidaMax = null,Vetor? Direcao = null, Estilo? estilo = null) 
-        : base (posicao, 5,5)
+        public Particula(Cord posicao, Action<Particula> HandlerMorte = null, double? tempoVidaMax = null,Vetor? Direcao = null,double velocidade = 1, Estilo? estilo = null) 
+        : base (posicao, TP/4,TP/4)
         {
             base.Pos = posicao;
             Morte += HandlerMorte;
             Estilo = estilo ?? new Estilo(Color.White);
-            Mov = new Movimento(this, Direcao ?? new Vetor(Rnd.NextDouble() * 2 - 1, Rnd.NextDouble() * 2 - 1).Normalizar());
+            Mov = new Movimento(this, Direcao ?? Vetor.Polar(velocidade, Rnd.NextDouble() * 2 * Math.PI));
             TempoVidaMax = tempoVidaMax ?? Rnd.Next(0, 1000);
             ZerarCriacao();
             

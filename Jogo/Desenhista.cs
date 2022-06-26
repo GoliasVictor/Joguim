@@ -13,8 +13,7 @@ namespace Jogo
         private GraphicsDevice GraphicsDevice;
         public Texture2D WhiteTexture { get; protected set; }
         public bool Desenhando { get; private set; }
-
-        public Desenhista(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice)
+        public Desenhista(SpriteBatch spriteBatch, GraphicsDevice graphicsDevice )
         {
             SpriteBatch = spriteBatch ?? throw new ArgumentNullException(nameof(spriteBatch));
             GraphicsDevice = graphicsDevice ?? throw new ArgumentNullException(nameof(graphicsDevice));
@@ -41,11 +40,13 @@ namespace Jogo
 
           
             var Cor = entidade.Estilo.Cor;
-            var Pos = new Point(
-                (int)(entidade.Pos.x - entidade.Tam.Largura / 2),
-                (int)(entidade.Pos.y - entidade.Tam.Altura / 2));
-            var Tam = new Point((int)entidade.Tam.Largura, (int)entidade.Tam.Altura);
-            SpriteBatch.Draw(WhiteTexture, new Rectangle(Pos, Tam), new Color(Cor.R, Cor.G, Cor.B));
+            
+            var Pos = new Vector2(
+                (float)(entidade.Pos.x - entidade.Tam.Largura / 2),
+                (float)(entidade.Pos.y - entidade.Tam.Altura / 2));
+
+            var Tam = new Point((int)entidade.Tam.Largura , (int)entidade.Tam.Altura);
+            SpriteBatch.Draw(WhiteTexture, Pos,new Rectangle(new Point(0,0),Tam), new Color(Cor.R, Cor.G, Cor.B));
 
         }
 

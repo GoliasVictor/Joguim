@@ -11,7 +11,7 @@ namespace Engine
 	};
 
 
-	public struct PosicaoLados{ 
+	public struct PosicaoLados { 
 		public PosicaoLados(Cord Pos,Tamanho Tam) {
 			Esquerda = Pos.x - Tam.Largura/2;
 			Direita  = Pos.x + Tam.Largura/2;
@@ -51,7 +51,7 @@ namespace Engine
 		public void Atualizar(double DeltaTempo)
 		{
 			Velocidade = ProximaVelocidade;
-			ForcaAplicada = default;
+			ForcaAplicada = Vetor.Zero;
 			Self.Pos = CalcProximaPos(DeltaTempo);
 			ProximaPosicao = CalcProximaPos(DeltaTempo);
 			ProximosLados =  new(ProximaPosicao, Self.Tam);
@@ -79,6 +79,9 @@ namespace Engine
 			Teclado = novoEstadoTeclado;
 			Mouse =  novoEstadoMouse;
 		}
+		public bool EstaPresionada(Keys key){
+            return Teclado.IsKeyDown(key);
+        }
 	}
 	public static class Colisao { 
 		static public void Estatica( IEntidade Colidido,IEntidade	 Colisor)
