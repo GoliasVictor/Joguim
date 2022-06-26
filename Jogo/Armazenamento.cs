@@ -16,10 +16,19 @@ namespace Armazenamento
     
     public static class MapasPrefeitos
     {
+        static void AdicionarParedes(Mapa Mapa)
+        {
+            var Grossura = Bloco.TamanhoPadrao;
+            Mapa.Blocos.Add(new Parede(new Cord(Mapa.Esquerda - Grossura / 2, 0), Grossura, Mapa.Tamanho.y + 2*Grossura));
+            Mapa.Blocos.Add(new Parede(new Cord(Mapa.Direita + Grossura / 2, 0), Grossura,  Mapa.Tamanho.y+ 2*Grossura));
+            Mapa.Blocos.Add(new Parede(new Cord(0, Mapa.Cima - Grossura / 2), Mapa.Tamanho.x + 2*Grossura, Grossura));
+            Mapa.Blocos.Add(new Parede(new Cord(0, Mapa.Baixo + Grossura / 2),Mapa.Tamanho.x + 2*Grossura, Grossura));
+        }
         public static BateVolta Zezinho = new BateVolta((30, 30), Vetor.Baixo + Vetor.Esquerda  ,estilo: Color.Violet );
         public static Mapa GerarMapaDeTeste1()
         {
             var Map = new Mapa(21, 21);
+            AdicionarParedes(Map);
             Map.Spawn = new Cord(Map.Tamanho.x / 2, Map.Tamanho.y / 2);
             /*Pintor.Retangulo<Morte>(new Cord(4, 4), new Cord(Map.Tamanho.x - 5, Map.Tamanho.y - 5));*/
             List<Porta> Portas = new List<Porta>(){
@@ -72,6 +81,7 @@ namespace Armazenamento
         public static Mapa GerarMapaDeTeste2()
         {
             var Map = new Mapa(10* (int)Bloco.TamanhoPadrao, 10* (int)Bloco.TamanhoPadrao);
+            AdicionarParedes(Map);
             Map.Spawn = new Cord(Map.Tamanho.x / 2, Map.Tamanho.y / 2);
             Map.AdicionarBlocos(new List<Bloco>
             {
@@ -89,13 +99,14 @@ namespace Armazenamento
         {
             
             var Map = new Mapa(21 *(int)Bloco.TamanhoPadrao, 21 * (int)Bloco.TamanhoPadrao);
+            AdicionarParedes(Map);
             Map.Spawn = new Cord(0, 0); 
             for (double x = -Map.Tamanho.x/2 + 20; x < Map.Tamanho.x/2 ; x+= 40)
             {
-                EstiloBloco Estilo = EstiloBloco.Aleatorio();
+                Estilo Estilo = Estilo.Aleatorio();
                 for (double y = -Map.Tamanho.y / 2 +20; y < Map.Tamanho.y / 2; y += 40)
                 {
-                    Map.AdicionarBloco(new Particula(new Cord(x,y), Map.MorteParticula, estilo: Estilo));
+                    Map.AdicionarBloco(new Particula(new Cord(x,y), Map.RemoverEntidade, estilo: Estilo));
                 }
             }
             return Map;
@@ -104,6 +115,7 @@ namespace Armazenamento
         public static  Mapa GerarMapaTestFIsica()
         {
             var Map = new Mapa(1000, 500);
+            AdicionarParedes(Map);
 
             var Blocos = new Bloco[]{
                 new BateVolta(new Cord(-200, 0),(Vetor.Baixo+Vetor.Esquerda)*3),
