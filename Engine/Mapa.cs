@@ -22,14 +22,11 @@ namespace Engine
         public  double Baixo => Tamanho.y / 2;
         public Mapa(int TamX, int TamY)
         {
-            Tamanho =  (TamX - Bloco.TamanhoPadrao, TamY - Bloco.TamanhoPadrao);
-            var Grossura = Bloco.TamanhoPadrao;
-            Blocos.Add(new Parede(new Cord(Esquerda-Grossura/2, 0), Grossura, TamY + Grossura ));
-            Blocos.Add(new Parede(new Cord(Direita + Grossura / 2, 0), Grossura, TamY + Grossura ));
-            Blocos.Add(new Parede(new Cord(0,Cima - Grossura / 2), TamX + Grossura , Grossura));
-            Blocos.Add(new Parede(new Cord(0,Baixo + Grossura / 2), TamX + Grossura, Grossura));
+
+            Tamanho =  (TamX - TamanhoPadrao, TamY - TamanhoPadrao);
+
         }
-        public void MorteParticula(Particula particula){
+        public void RemoverEntidade(IBloco particula){
             Blocos.Remove(particula);
         }
         public void AdicionarBloco(IBloco bloco)
