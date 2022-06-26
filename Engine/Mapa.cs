@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static Engine.Helper;
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 
 namespace Engine
 {
@@ -13,122 +14,88 @@ namespace Engine
     {
 
         Stopwatch St = new Stopwatch();
-        public readonly HashSet<IBloco> Blocos = new HashSet<IBloco>();   
-        public readonly (double x, double y) Tamanho;
-        public Cord Spawn { get; set; } = (1, 1);
-        public  double Esquerda => -Tamanho.x/2;
-        public  double Direita => Tamanho.x/2;
-        public  double Cima => -Tamanho.y / 2;
-        public  double Baixo => Tamanho.y / 2;
-        public Mapa(int TamX, int TamY)
+        public readonly HashSet<IEntidade> Entidades = new HashSet<IEntidade>();   
+		private IEnumerable<IMovel> entidadesMoveis => Entidades.OfType<IMovel>();
+        
+        public readonly Tamanho Tamanho;
+        readonly public PosicaoLados PosicaoLados ;
+        public double PixelPorUnidade = TP;
+        public IEstilo Estilo;
+        public Mapa(double TamX, double TamY)
         {
+            Tamanho = new Tamanho(TamX, TamY );
+            PosicaoLados =  new PosicaoLados((0,0), Tamanho);
+        }
+        
+        public void RemoverEntidade(IEntidade particula){
+            Entidades.Remove(particula);
+        }
+        public void AdicionarEntidade(IEntidade entidade)
+        {
+            Entidades.Add(entidade);
+        }
+        public void AdicionarEntidades(IEnumerable<IEntidade> entidades)
+        {
+            foreach (IEntidade entidade in entidades)
+                Entidades.Add(entidade);
+        }
 
-            Tamanho =  (TamX - TamanhoPadrao, TamY - TamanhoPadrao);
-
-        }
-        public void RemoverEntidade(IBloco particula){
-            Blocos.Remove(particula);
-        }
-        public void AdicionarBloco(IBloco bloco)
+        const double Steps = 10;
+        static double VelocidadeRelativa = 1;
+        public void AtualizarMapa(IInputs inputs,double VelocidadeTempo = 1)
         {
-            Blocos.Add(bloco);
-        }
-        public void AdicionarBlocos(IEnumerable<IBloco> blocos)
-        {
-            foreach (IBloco Bloco in blocos)
-                Blocos.Add(Bloco);
-        }
-        static bool Colidindo(IBloco A, IBloco B)
-        {
-            return A.ProximaDireita > B.ProximaEsquerda && A.ProximaCima < B.ProximaBaixo
-                && B.ProximaDireita > A.ProximaEsquerda && B.ProximaCima < A.ProximaBaixo;
-        } 
-        static void Colidir(IBloco A, IBloco B)
-        {  
-            B.Colidir(A);
-            A.Colidir(B);
-        }
-        #region ColisaoParalela 
-        static void ColidirParalelo(IEnumerable<IBloco> blocos){
-            var Sublists = blocos.Select((B) => new List<IBloco>(){B});
-            ColidirEJuntar(new ConcurrentStack<List<IBloco>>(Sublists));
-        }
-        static ConcurrentStack<List<IBloco>> ColidirEJuntar(ConcurrentStack<List<IBloco>> StackListsBloco){
-            var ListasUnidas =  new ConcurrentStack<List<IBloco>>();
-            List<Task> Tasks =  new List<Task>();
-            while(StackListsBloco.Count > 1){
-                StackListsBloco.TryPop(out var A);
-                StackListsBloco.TryPop(out var B);
-                Tasks.Add( Task.Run(()=>{
-                    ListasUnidas.Push(ColidirEJuntarLists(A,B));
-                }));
-            }
-            if(StackListsBloco.Count == 1){
-                StackListsBloco.TryPop(out var Lista);
-                ListasUnidas.Push(Lista);
-            }
-            Task.WhenAll(Tasks).Wait();
-            return ListasUnidas.Count < 2 ? ListasUnidas : ColidirEJuntar(ListasUnidas);
-        }
-        static List<IBloco> ColidirEJuntarLists(List<IBloco> Blocos1,List<IBloco> Blocos2){
-            if(Blocos2 is null)
-                return Blocos1;
-            if(Blocos1 is null)
-                return Blocos2;
-            Parallel.ForEach(Blocos1,(A)=>{
-                foreach (var B in Blocos2)
-                    if(Colidindo(A, B))
-                        Colidir(A, B);
-            });            
-            return Blocos1.Union(Blocos2).ToList();
-        }
-        #endregion
-        static void Colidir(IEnumerable<IBloco> blocos)
-        {
-            if (blocos is null)
-                throw new ArgumentNullException(nameof(blocos));
-            var Blocos = new Stack<IBloco>(blocos);
-            while(Blocos.Count > 0)
-            {
-                var A = Blocos.Pop();
-                foreach (var B in Blocos)
-                    if(Colidindo(A, B))
-                        Colidir(A, B);
-            }
-        }
-        readonly double Steps = 2;
-        public void AtualizarMapa(double VelocidadeTempo = 1)
-        {
-            
+            //VelocidadeTempo = VelocidadeTempo == 1 ?  VelocidadeRelativa : VelocidadeTempo;
             var TotalSteps = Steps * Math.Abs(VelocidadeTempo);
-            var DeltaT = 1 /(Steps * VelocidadeTempo);
+            var DeltaT = 1/(Steps * VelocidadeTempo);
             St.Start();
             for (int T = 0; T < TotalSteps; T++)
-            {
-                Tempo += DeltaT;
-                Colidir(Blocos);
-                Parallel.ForEach(  BlocosAtualizaveis, 
-                    (BlocoAtualizavel) =>  BlocoAtualizavel.Atualizar() 
-                );
-            }
-            St.Stop();
-            LogTicks(St.ElapsedTicks);
+				SubAualizacao(inputs, DeltaT);
+			St.Stop();
+            //MostrarVelocidade();
+            //LogTicks(St.ElapsedTicks);
             St.Restart();
-        }   
-        List<double> ListTicks = new List<double>();
+        }
+
+		protected void SubAualizacao(IInputs inputs, double DeltaT)
+		{
+            Tempo += DeltaT;
+			SistemaColisao.Colidir(Entidades.OfType<IColisivel>(), DeltaT);
+			foreach (var Entidade in Entidades.OfType<IInputable>())
+				Entidade.Inputs = inputs;
+			foreach (var Entidade in Entidades)
+				Entidade.Atualizar(DeltaT);
+		}
+
+		List<double> ListTicks = new List<double>();
         void LogTicks(double Ticks){
             
             ListTicks.Add(Ticks);
             var Media = ListTicks.Sum((T) => T/ListTicks.Count());
-            Console.WriteLine($"{Math.Log2(Media):000000000} ~ {Math.Log2(Ticks):000000000}");
+            Console.WriteLine($"{Media:000000000} ~ {Ticks:000000000}");
         }
+        static double VelocidadeMaximaAnterior; 
         private void MostrarVelocidade(){
             Vetor VelocidadeTotal = default;
-            foreach (IMovel movel in BlocosMoveis)
-                VelocidadeTotal += movel.Velocidade;
-            Console.WriteLine(VelocidadeTotal + ParedeVelocidade);
+            IMovel MaisRapido = entidadesMoveis.First();
+            foreach (IMovel movel in entidadesMoveis)
+            {
+                var vel= movel.Mov.Velocidade;
+                if (MaisRapido.Mov.Velocidade.Tamanho <= vel.Tamanho)
+                    MaisRapido = movel;
+                if(!double.IsNaN(vel.x) && !double.IsNaN(vel.y))
+                    VelocidadeTotal +=  movel.Mov.Velocidade;
+            }
+            if(MaisRapido.Mov.Velocidade.Tamanho !=  VelocidadeMaximaAnterior){
+                VelocidadeMaximaAnterior = MaisRapido.Mov.Velocidade.Tamanho;
+                Console.WriteLine("maior velocidade: " + MaisRapido.Mov.Velocidade.Tamanho/Math.Sqrt(2)); 
+            }
+            
+            //Console.WriteLine(VelocidadeTotal + ParedeVelocidade);
+            VelocidadeRelativa = 1/(MaisRapido.Mov.Velocidade.Tamanho*10);
+            if(VelocidadeRelativa < 1/21153.929811923368)
+                VelocidadeRelativa = 1/21153.929811923368;
+
+            
         }
-        private IEnumerable<IAtualizavel> BlocosAtualizaveis => Blocos.OfType<IAtualizavel>();
-		private IEnumerable<IMovel> BlocosMoveis => Blocos.OfType<IMovel>();
 	} 
 }

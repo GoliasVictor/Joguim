@@ -1,23 +1,26 @@
 ﻿using System;
+using static Engine.Helper;
+using Engine;
 
-namespace Engine
+namespace Jogo
 {
-    [Serializable]
-    public class Quadradinho : BlocoMovel, IMovel
+	[Serializable]
+    public class Quadradinho :  Entidade, IMovel, IColisivel
     {
+        public IMovimento Mov {get;}  
         public bool HorarioAntihoriario;
-        public override void Colidir(IBloco Colisor)
+        public void Colidir(IEntidade Colisor)
         {
-            base.Colidir(Colisor);
-            Velocidade *= HorarioAntihoriario ^ Velocidade.x == 0 ? 1 : -1; ;
-        } 
-        public Quadradinho(Cord posicao, bool horarioAntihoriario, Vetor direcao, double largura = 1, double altura = 1, Estilo? estilo = null) : base(posicao, largura, altura )
-        {
-            Posicao = posicao;
-            HorarioAntihoriario = horarioAntihoriario;
-            Velocidade = direcao.Normalizar();
-            base.Estilo = estilo ?? Estilo.Aleatorio();
+            Mov.Velocidade *= HorarioAntihoriario ^ Mov.Velocidade.x == 0 ? 1 : -1; ;
+            Colisao.Estatica(this, Colisor);
 
+        }
+
+		public Quadradinho(Vetor posicao, bool horarioAntihoriario, Vetor direcao, double largura = TP, double altura = TP, Estilo? estilo = null) 
+         :base(posicao, largura, altura, estilo ?? Estilo.Aleatorio())
+        {
+            HorarioAntihoriario = horarioAntihoriario;
+            Mov = new Movimento(this, direcao.Normalizar()); 
         }
 
     }
