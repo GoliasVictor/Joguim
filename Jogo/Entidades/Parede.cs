@@ -1,14 +1,18 @@
 ﻿using System;
+using static Engine.Helper;
+using Engine;
+using Microsoft.Xna.Framework;
 
-namespace Engine
+namespace Jogo
 {
-    [Serializable]
-    public class Parede:Bloco
+	[Serializable]
+    public class Parede : Entidade, IColisivel
     {
-        public override Estilo Estilo { get; set; } 
-        public Parede(Cord posicao, double largura = TamanhoPadrao, double altura= TamanhoPadrao, Estilo? estilo = null) : base(posicao, largura, altura)
+
+        public void Colidir(IEntidade Colisor) => Colisao.Estatica(this, Colisor);
+        public Parede(Vetor posicao, double largura = TP, double altura= TP, Estilo? estilo = default) 
+        : base (posicao, largura, altura, estilo ?? new Estilo(new Color(101, 67, 33)))
         {
-            Estilo = estilo ?? Estilo.parede;
         }
          
     }

@@ -1,32 +1,34 @@
 ﻿using System;
+using static Engine.Helper;
+using Engine;
 
-namespace Engine
+namespace Jogo
 {
-    [Serializable]
-    public class Botao : Bloco
-    {
-        public bool Tangivel => false;
-        public override Estilo Estilo { get; set; } = Estilo.Botao;
-
-        public bool Prescionado = false;
+	[Serializable]
+    public class Botao : Entidade, IColisivel
+    { 
+		public bool Prescionado = false;
         public IReceptor Receptor;
         public void Emitir()
         {
             Receptor.Receber(this);
         }
 
-        public override void Colidir(IBloco e = null)
+        public void Colidir(IEntidade e = null)
         {
             if (!Prescionado)
             {
                 Emitir();
                 Prescionado = true;
-            }
+            } 
         }
-        public Botao(Cord posicao, IReceptor receptor, double largura = 1, double altura = 1, Estilo? estilo = null) : base(posicao, largura, altura)
+
+		public void Atualizar(long DeltaTempo){}
+
+		public Botao(Vetor posicao, IReceptor receptor, double largura = TP, double altura = TP, Estilo? estilo = null) 
+        : base(posicao, largura, altura, estilo ?? Estilo.Botao)
         {
-            Receptor = receptor;
-            Estilo = estilo ?? Estilo.Botao; 
+            Receptor = receptor; 
         }
 
 

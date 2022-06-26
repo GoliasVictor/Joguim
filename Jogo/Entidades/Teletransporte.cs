@@ -1,21 +1,23 @@
 ﻿using System;
+using static Engine.Helper;
+using Engine;
 
-namespace Engine
+namespace Jogo
 {
-    [Serializable]
-    public class Teletransporte : Bloco 
-    {
-        public Cord Saida;
-        public bool Tangivel => true;
-        public Teletransporte(Cord posicao, Cord Saida , Estilo? estilo = null, double largura = TamanhoPadrao, double altura = TamanhoPadrao) : base(posicao, largura, altura)
-        {
-            this.Saida = Saida;
-            Estilo = estilo ?? Estilo.Teletransporte;
+	[Serializable]
+    public class Teletransporte : Entidade, IColisivel
+    { 
+        public Vetor Saida; 
+        public Teletransporte(Vetor posicao, Vetor saida , Estilo? estilo = null, double largura = TP, double altura = TP) 
+            : base (posicao, largura,altura, estilo ?? Estilo.Teletransporte)
+        { 
+            Saida = saida;
         }
-        public override void Colidir(IBloco Colisor)
+        public void Colidir(IEntidade Colisor)
         { 
             if (Colisor is IJogador jogador) 
                 jogador.Mover(Saida);
+            Colisao.Estatica(this, Colisor);
         }
     }
 }

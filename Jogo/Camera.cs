@@ -18,8 +18,7 @@ namespace Jogo
             Zoom = zoom;
             Atualizar(centro);
         }
-
-        private float zoom;
+ 
 
         float x
         {
@@ -36,14 +35,7 @@ namespace Jogo
                    Matrix.CreateScale(Zoom, Zoom, 0) *
                    Matrix.CreateTranslation(Centro);
          }
-        public float Zoom { 
-            get => zoom;
-            set
-            {
-                if (value < 10 && value > 0.01)
-                    zoom = value;
-            }
-        }
+        public float Zoom { get;set;}
 
         public void Atualizar(Vector3 NovoCentro)
         {

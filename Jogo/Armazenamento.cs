@@ -3,127 +3,157 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
-using Newtonsoft.Json;
-using System.Drawing;
-using Newtonsoft.Json.Linq;
 using Engine;
 using System; 
+using static Engine.Helper;
+using Microsoft.Xna.Framework;
 
-namespace Armazenamento
+namespace Jogo
 {
     
-    public enum TipBloco { Chao, Parede, Morte, Ponto, Teletransporte, Porta, Botao }
     
     public static class MapasPrefeitos
     {
-        static void AdicionarParedes(Mapa Mapa)
+
+        static void AdicionarParedes(Mapa mapa, double grossura)
         {
-            var Grossura = Bloco.TamanhoPadrao;
-            Mapa.Blocos.Add(new Parede(new Cord(Mapa.Esquerda - Grossura / 2, 0), Grossura, Mapa.Tamanho.y + 2*Grossura));
-            Mapa.Blocos.Add(new Parede(new Cord(Mapa.Direita + Grossura / 2, 0), Grossura,  Mapa.Tamanho.y+ 2*Grossura));
-            Mapa.Blocos.Add(new Parede(new Cord(0, Mapa.Cima - Grossura / 2), Mapa.Tamanho.x + 2*Grossura, Grossura));
-            Mapa.Blocos.Add(new Parede(new Cord(0, Mapa.Baixo + Grossura / 2),Mapa.Tamanho.x + 2*Grossura, Grossura));
+            var Lados = mapa.PosicaoLados;
+            mapa.AdicionarEntidades( new[]{
+                new Parede(new Vetor(Lados.Esquerda + grossura / 2, 0), grossura, mapa.Tamanho.Altura ),
+                new Parede(new Vetor(Lados.Direita  - grossura / 2, 0), grossura, mapa.Tamanho.Altura ),
+                new Parede(new Vetor(0 ,Lados.Cima  + grossura / 2   ), mapa.Tamanho.Largura, grossura),
+                new Parede(new Vetor(0 ,Lados.Baixo - grossura / 2   ), mapa.Tamanho.Largura, grossura),
+            });
         }
-        public static BateVolta Zezinho = new BateVolta((30, 30), Vetor.Baixo + Vetor.Esquerda  ,estilo: Color.Violet );
         public static Mapa GerarMapaDeTeste1()
         {
             var Map = new Mapa(21, 21);
-            AdicionarParedes(Map);
-            Map.Spawn = new Cord(Map.Tamanho.x / 2, Map.Tamanho.y / 2);
+            Map.PixelPorUnidade = 20;
             /*Pintor.Retangulo<Morte>(new Cord(4, 4), new Cord(Map.Tamanho.x - 5, Map.Tamanho.y - 5));*/
+            AdicionarParedes(Map, 1);
+            
             List<Porta> Portas = new List<Porta>(){
-                new Porta(new Cord(04, 10),3),
-                new Porta(new Cord(10, 04),3),
-                new Porta(new Cord(16, 10),3),
-                new Porta(new Cord(10, 16),3),
+                new Porta(new Vetor(04-10, 10-10),3,null,null,1,1),
+                new Porta(new Vetor(10-10, 04-10),3,null,null,1,1),
+                new Porta(new Vetor(16-10, 10-10),3,null,null,1,1),
+                new Porta(new Vetor(10-10, 16-10),3,null,null,1,1),
             };
-            Map.AdicionarBlocos(Portas);
-            Map.AdicionarBlocos(new IBloco[]{
-                new Parede(( 4, 0), 1, 20),
-                new Parede((16, 0), 1, 20),
-                new Parede(( 0, 4),20, 1),
-                new Parede(( 0,16), 20, 1),
+            Map.AdicionarEntidades(Portas);
+            Map.AdicionarEntidades(new IEntidade[]{
+                new Parede((16-10, 0), 1, 20),
+                new Parede(( 4-10, 0), 1, 20),
+                new Parede(( 0, 4-10),20, 1),
+                new Parede(( 0,16-10), 20, 1),
 
-                new BateVolta((05, 05), Vetor.Baixo  ,estilo: Color.Blue   ),
-                new BateVolta((15, 05), Vetor.Direita,estilo: Color.DarkOrange) ,
-                new BateVolta((05, 15), Vetor.Direita,estilo: Color.Yellow ),
-                Zezinho,
+                new BateVolta((05-10, 05-10), Vetor.Baixo  /10,1,1,estilo: Color.Blue   ),
+                new BateVolta((15-10, 05-10), Vetor.Direita/10,1,1,estilo: Color.DarkOrange) ,
+                new BateVolta((05-10, 15-10), Vetor.Direita/10,1,1,estilo: Color.Yellow ),
+                new BateVolta((15-10, 15-10), Vetor.Direita/10,1,1,estilo: Color.Yellow ),
 
-                new Quadradinho((03, 10), true , Vetor.Baixo  ,estilo: Color.Violet ),
-                new Quadradinho((17, 10), false, Vetor.Direita,estilo: Color.Violet ),
-                new Quadradinho((10, 03), true , Vetor.Direita,estilo: Color.Violet ),
-                new Quadradinho((10, 17), false, Vetor.Baixo  ,estilo: Color.Violet ),
+                new Quadradinho((03-10, 10-10), true , Vetor.Baixo  ,1,1,estilo: Color.Violet ),
+                new Quadradinho((17-10, 10-10), false, Vetor.Direita,1,1,estilo: Color.Violet ),
+                new Quadradinho((10-10, 03-10), true , Vetor.Direita,1,1,estilo: Color.Violet ),
+                new Quadradinho((10-10, 17-10), false, Vetor.Baixo  ,1,1,estilo: Color.Violet ),
  
 
-                new Teletransporte((10, 11),(10, 19)),
-                new Teletransporte((10, 09),(10, 01)),
-                new Teletransporte((11, 10),(19, 10)),
-                new Teletransporte((09, 10),(01, 10)),
+                new Teletransporte(( 0, 1),(  0, -8),null,1,1),
+                new Teletransporte(( 0,-1),(  0,  8),null,1,1),
+                new Teletransporte(( 1, 0),( -8,  0),null,1,1),
+                new Teletransporte((-1, 0),(  8,  0),null,1,1),
                 
-                new Botao((02, 05), Portas[0]),
-                new Botao((02, 10), Portas[0]),
-                new Botao((02, 15), Portas[0]),
+                new Botao((02-10, 05-10), Portas[0],1,1),
+                new Botao((02-10, 10-10), Portas[0],1,1),
+                new Botao((02-10, 15-10), Portas[0],1,1),
                 
-                new Botao((05, 02), Portas[1]),
-                new Botao((10, 02), Portas[1]),
-                new Botao((15, 02), Portas[1]),
+                new Botao((05-10, 02-10), Portas[1],1,1),
+                new Botao((10-10, 02-10), Portas[1],1,1),
+                new Botao((15-10, 02-10), Portas[1],1,1),
                 
-                new Botao((18, 05), Portas[2]),
-                new Botao((18, 10), Portas[2]),
-                new Botao((18, 15), Portas[2]),
+                new Botao((18-10, 05-10), Portas[2],1,1),
+                new Botao((18-10, 10-10), Portas[2],1,1),
+                new Botao((18-10, 15-10), Portas[2],1,1),
                 
-                new Botao((05, 18), Portas[3]),
-                new Botao((10, 18), Portas[3]),
-                new Botao((15, 18), Portas[3]),
+                new Botao((05-10, 18-10), Portas[3],1,1),
+                new Botao((10-10, 18-10), Portas[3],1,1),
+                new Botao((15-10, 18-10), Portas[3],1,1),
+                new Jogador((0,0),0.5,1,1)
             }); 
             return Map;
         }
         public static Mapa GerarMapaDeTeste2()
         {
-            var Map = new Mapa(10* (int)Bloco.TamanhoPadrao, 10* (int)Bloco.TamanhoPadrao);
-            AdicionarParedes(Map);
-            Map.Spawn = new Cord(Map.Tamanho.x / 2, Map.Tamanho.y / 2);
-            Map.AdicionarBlocos(new List<Bloco>
+            var Map = new Mapa(10* (int)TP, 10* (int)TP);
+            Map.AdicionarEntidades(new List<Entidade>
             {
-                //new BateVolta((05*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Baixo   ),
-                //new BateVolta((15*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Direita ) ,
-                //new BateVolta((05*Bloco.TamanhoPadrao, 15*Bloco.TamanhoPadrao), Vetor.Direita ),
-                //new BateVolta((05*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Baixo   ),
-                //new BateVolta((15*Bloco.TamanhoPadrao, 05*Bloco.TamanhoPadrao), Vetor.Direita ) ,
-                //new BateVolta((05*Bloco.TamanhoPadrao, 15*Bloco.TamanhoPadrao), Vetor.Direita ),
-                Zezinho,
+                //new BateVolta((05*TP, 05*TP), Vetor.Baixo   ),
+                //new BateVolta((15*TP, 05*TP), Vetor.Direita ) ,
+                //new BateVolta((05*TP, 15*TP), Vetor.Direita ),
+                //new BateVolta((05*TP, 05*TP), Vetor.Baixo   ),
+                //new BateVolta((15*TP, 05*TP), Vetor.Direita ) ,
+                //new BateVolta((05*TP, 15*TP), Vetor.Direita ),
             });
             return Map;
         }
         public static Mapa GerarMapaParticulas()
         {
-            
-            var Map = new Mapa(21 *(int)Bloco.TamanhoPadrao, 21 * (int)Bloco.TamanhoPadrao);
-            AdicionarParedes(Map);
-            Map.Spawn = new Cord(0, 0); 
-            for (double x = -Map.Tamanho.x/2 + 20; x < Map.Tamanho.x/2 ; x+= 40)
-            {
+            var Tamanho = 40*TP;
+            var Map = new Mapa(Tamanho+TP, Tamanho+TP);
+            AdicionarParedes(Map,TP);
+            Map.PixelPorUnidade = 0.5;
+
+            var N = 10 ;
+            var Gap = Tamanho / N;
+            for (double rx = 0; rx < Tamanho; rx+= Gap){
                 Estilo Estilo = Estilo.Aleatorio();
-                for (double y = -Map.Tamanho.y / 2 +20; y < Map.Tamanho.y / 2; y += 40)
-                {
-                    Map.AdicionarBloco(new Particula(new Cord(x,y), Map.RemoverEntidade, estilo: Estilo));
+                for (double ry = 0 ; ry < Tamanho; ry += Gap) {
+                    var posicao =  new Vetor(rx, ry) + new Vetor(1,1) * ( -Tamanho/2 + Gap/2);
+                    Map.AdicionarEntidade(new Particula(posicao, Map.RemoverEntidade ,double.PositiveInfinity,velocidade: 2, estilo: Estilo));
                 }
             }
+            return Map;
+        } 
+
+        public static Mapa GerarMapaDemonioDeLaplace()
+        {
+            var Tamanho = 40*TP;
+            var Map = new Mapa(Tamanho+TP, Tamanho+TP);
+            Map.PixelPorUnidade = 0.5;
+            Map.AdicionarEntidade(new Parede((0, 0), TP, Tamanho));
+            Map.AdicionarEntidade(new Parede((0, 0), Tamanho, TP));
+
+            var N = 16 ;
+            var Gap = Tamanho / N;
+                
+            for (double rx = 0; rx < Tamanho; rx+= Gap)
+            {
+                Estilo Estilo = Estilo.Aleatorio();
+                for (double ry = 0 ; ry < Tamanho; ry += Gap)
+                {
+                    var posicao =  new Vetor(rx, ry) + new Vetor(1,1) * ( -Tamanho/2 + Gap/2);
+                    Map.AdicionarEntidade(new Particula(posicao, 
+                        Map.RemoverEntidade,
+                        double.PositiveInfinity, 
+                        velocidade: (ry+rx)*(ry+rx)/500000 , 
+                        estilo: Estilo
+                    ));
+                }
+            }
+
             return Map;
         } 
 
         public static  Mapa GerarMapaTestFIsica()
         {
             var Map = new Mapa(1000, 500);
-            AdicionarParedes(Map);
+            Map.PixelPorUnidade = 1;
+            AdicionarParedes(Map, TP);
+            var entidades = new Entidade[]{
+                new BateVolta(new Vetor(-200, 0),(Vetor.Baixo+Vetor.Esquerda)*3),
 
-            var Blocos = new Bloco[]{
-                new BateVolta(new Cord(-200, 0),(Vetor.Baixo+Vetor.Esquerda)*3),
-
-                new BateVolta(new Cord(-40,70), Vetor.Direita*2),
-                new BateVolta(new Cord( 40,70), Vetor.Esquerda*2),
-                new BateVolta(new Cord( 70,-40), Vetor.Cima *2),
-                new BateVolta(new Cord( 70,40), Vetor.Baixo*2),
+                new BateVolta((-40,70), Vetor.Direita*2),
+                new BateVolta(( 40,70), Vetor.Esquerda*2),
+                new BateVolta(( 70,-40), Vetor.Cima *2),
+                new BateVolta(( 70,40), Vetor.Baixo*2),
                 
                 //new BateVolta(new Cord(-  0, 0)),
                 //new BateVolta(new Cord(Aux-= 20, 0)),
@@ -132,91 +162,8 @@ namespace Armazenamento
                 //new BateVolta(new Cord(Aux-= 20, 0)),
                 //new BateVolta(new Cord(Aux-= 20.1*2, 0), Vetor.Direita), 
             };
-            Map.AdicionarBlocos(Blocos);
+            Map.AdicionarEntidades(entidades);
             return Map;
-        }
-    }
-    public static class Arqs
-    {
-        public static string Path = @"C:\Users\Victor\Documents\Dev\Projetos_atuais\Joguim - Copia\Mapas\";
-        public static void Salvar<T>(T Object, string Nome)
-        {
-
-            File.WriteAllText(Path + Nome + ".json", JsonConvert.SerializeObject(Object, Formatting.Indented));
-        }
-        public static void SalvarWml<T>(T objectToWrite, string Name, bool append = false) where T : new()
-        {
-            TextWriter writer = null;
-            try
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(T));
-
-                writer = new StreamWriter(Path + Name + ".xml", append);
-                serializer.Serialize(writer, objectToWrite);
-            }
-            finally
-            {
-                if (writer != null)
-                    writer.Close();
-            }
-        }
-        public static List<string> GetArquivos() => GetArquivos(Path);
-        public static List<string> GetArquivos(string PathDirectory)
-        {
-            string[] PathFileNames = Directory.GetFiles(PathDirectory);
-
-            List<string> FileNames = new List<string>();
-            foreach (string FileName in PathFileNames) FileNames.Add(FileName.Remove(0, PathDirectory.Length));
-            return FileNames;
-        }
-        public static string Extensao(string FileName) => FileName.Contains(".") ? FileName.Remove(0, FileName.LastIndexOf('.')) : "";
-
-        public static T Carregar<T>(string Nome)
-        {
-            string path = Path + Nome + ".json";
-
-            return JsonConvert.DeserializeObject<T>(File.ReadAllText(path));
-
-        }
-        [STAThread]
-        public static void SalvarBin(object Dados, string Nome)
-        {
-
-            FileStream fs = new FileStream(Path + Nome + ".dat", FileMode.Create);
-
-            BinaryFormatter formatter = new BinaryFormatter();
-            try
-            {
-                formatter.Serialize(fs, Dados);
-            }
-            catch (SerializationException e)
-            {
-                Console.WriteLine("Failed to serialize. Reason: " + e.Message);
-                throw;
-            }
-            finally
-            {
-                fs.Close();
-            }
-        }
-
-        public static T CarregarBin<T>(string Nome)
-        {
-            FileStream fs = new FileStream(Path + Nome + ".dat", FileMode.Open);
-            try
-            {
-                BinaryFormatter formatter = new BinaryFormatter();
-                return (T)formatter.Deserialize(fs);
-            }
-            catch (SerializationException e)
-            {
-                Console.WriteLine("Failed to deserialize. Reason: " + e.Message);
-                throw;
-            }
-            finally
-            {
-                fs.Close();
-            }
         }
     }
 }

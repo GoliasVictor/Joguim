@@ -1,16 +1,17 @@
 ﻿using System;
-using System.Drawing;
 using static Engine.Helper;
+using Engine;
 
-namespace Engine
+namespace Jogo
 {
-    public class Particula : BateVolta
-    {
-        public override Cord Posicao {
-            get => Vivo ? base.Posicao : Cord.NaN;
-            protected set {
+	public class Particula : Entidade, IMovel, IColisivel
+    { 
+        public IMovimento Mov {get;}  
+        public override Vetor Pos {
+            get => Vivo ? base.Pos : Vetor.NaN;
+            set {
                 if(Vivo)
-                    base.Posicao = value;
+                    base.Pos = value;
             }
         }
         public bool Vivo => TempoVidaMax > TempoVida ;
@@ -25,21 +26,31 @@ namespace Engine
         public void ZerarCriacao(){
             MomentoCriacao = Tempo;
         }
-        public Particula(Cord posicao, Action<Particula> HandlerMorte = null, int? TempoVidaMax = null,Vetor? Direcao = null, Estilo? estilo = null) : base(posicao, null, 5, 5, estilo)
+        public Particula(Vetor posicao, Action<Particula> HandlerMorte = null, double? tempoVidaMax = null,Vetor? Direcao = null,double velocidade = 1, Estilo? estilo = null) 
+        : base (posicao, TP/4,TP/4)
         {
+            base.Pos = posicao;
             Morte += HandlerMorte;
+            Estilo = estilo ?? new Estilo(Microsoft.Xna.Framework.Color.White);
+            Mov = new Movimento(this, Direcao ?? Vetor.Polar(velocidade, Rnd.NextDouble() * 2 * Math.PI));
+            TempoVidaMax = tempoVidaMax ?? Rnd.Next(0, 1000);
             ZerarCriacao();
-            Estilo = estilo ?? new Estilo(Color.White);
-            Velocidade = Direcao ?? new Vetor(Rnd.NextDouble() * 2 - 1, Rnd.NextDouble() * 2 - 1).Normalizar();
-            this.TempoVidaMax = TempoVidaMax ?? Rnd.Next(0, 1000); 
-            Posicao = posicao;
+            
 
         }
-        public override void Atualizar()
-        {
-            base.Atualizar();
+        public override void Atualizar( double DeltaTempo)
+        { 
             if(!Vivo)
                 Morrer();
+            Mov.Atualizar(DeltaTempo);
         }
-    }
+		public override string ToString()
+		{
+			return $"Pos:{Pos}";
+		}
+		public void Colidir(IEntidade Colisor)
+		{ 
+            Colisao.Movel(this, Colisor);
+		}
+	}
 }

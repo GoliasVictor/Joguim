@@ -1,15 +1,24 @@
 ﻿using System;
+using static Engine.Helper;
+using Engine;
 
-namespace Engine
+namespace Jogo
 {
-    [Serializable]
-    public class BateVolta : BlocoMovel, IMovel
+	[Serializable]
+    public class BateVolta :Entidade,  IMovel, IColisivel
     {   
-        public BateVolta(Cord posicao, Vetor?  Direcao = null, double largura=TamanhoPadrao, double altura= TamanhoPadrao, Estilo? estilo = null):base(posicao,largura,altura)
+		public IMovimento Mov {get;set;} 
+        public BateVolta(Vetor posicao, Vetor?  Direcao = null, double largura=TP, double altura= TP, Estilo? estilo = null)
+            :base(posicao,largura,altura, estilo ??  Estilo.Aleatorio())
         {
-            Posicao = posicao;
-            Velocidade = Direcao ?? default;
-            Estilo = estilo ??  Estilo.Aleatorio();
+            Mov = new Movimento(this,Direcao ?? default); 
         }
-    }
+		public override void Atualizar(double DeltaTempo){
+            Mov.Atualizar(DeltaTempo);
+        }
+		public void Colidir(IEntidade Colisor)
+		{
+            Colisao.Movel(this, Colisor);
+		}
+	}
 }
