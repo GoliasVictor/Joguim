@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using Engine;
-using Armazenamento;
 using static Engine.Helper;
 namespace Jogo
 {
@@ -11,7 +10,7 @@ namespace Jogo
     {
 
         Mapa Map { get; set; }
-        readonly double VelocidadeTempo = 1;
+        const double VelocidadeTempo = 1;
         Desenhista Desenhista;
         bool Stop = true;
         Camera Camera;
@@ -31,7 +30,7 @@ namespace Jogo
         public void GerarMapa()
         {
             Tempo = 0; 
-            Map = MapasPrefeitos.GerarMapaParticulas();
+            Map = MapasPrefeitos.GerarMapaDeTeste1();
             
            // Map.AdicionarEntidade(Jogador = new Jogador((50,50), estilo: Estilo.Player));
         }
@@ -39,12 +38,12 @@ namespace Jogo
         protected override void Initialize()
         {
             _graphics.IsFullScreen = false;
-            _graphics.PreferredBackBufferWidth = (int)(Map.Tamanho.x*Map.PixelPorUnidade);
-            _graphics.PreferredBackBufferHeight = (int)(Map.Tamanho.y *Map.PixelPorUnidade);
+            _graphics.PreferredBackBufferWidth = (int)(Map.Tamanho.Largura*Map.PixelPorUnidade);
+            _graphics.PreferredBackBufferHeight = (int)(Map.Tamanho.Altura *Map.PixelPorUnidade);
             _graphics.ApplyChanges();
             Camera = new Camera(_graphics.GraphicsDevice.Viewport);
             Camera.Zoom = (float)(Map.PixelPorUnidade);
-            var bg = Map.Background.Cor;
+            var bg = Map.Estilo  is null ? default : ((Estilo)Map.Estilo).Cor;
             Background =  new Color(bg.R,bg.G, bg.B);
 
             base.Initialize();
@@ -73,12 +72,14 @@ namespace Jogo
             AtualizarZoom();
             if (Teclado.Apertou(Keys.Space))
                 Stop = !Stop;
-            //if (Teclado.Apertando(Keys.Right))            
-            //    Map.AtualizarMapa(VelocidadeTempo);
-            //else if (Teclado.Apertando(Keys.Left))
-            //    Map.AtualizarMapa(-VelocidadeTempo);
-            else if (!Stop)
-                Map.AtualizarMapa(Keyboard.GetState(),Mouse.GetState());
+            else if (!Stop){
+                var Inputs = new Inputs(Keyboard.GetState(),Mouse.GetState());
+
+                if ( Teclado.Apertando(Keys.T) && Teclado.Apertando(Keys.Left))
+                    Map.AtualizarMapa(Inputs,-VelocidadeTempo);
+                else
+                    Map.AtualizarMapa(Inputs,VelocidadeTempo);
+            }
 
             base.Update(gameTime);
         } 

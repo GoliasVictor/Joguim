@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static Engine.Helper;
 using System.Collections.Concurrent;
-using Microsoft.Xna.Framework.Input;
 using System.Runtime.CompilerServices;
-using System.Drawing;
 
 namespace Engine
 {
@@ -19,20 +17,17 @@ namespace Engine
         public readonly HashSet<IEntidade> Entidades = new HashSet<IEntidade>();   
 		private IEnumerable<IMovel> entidadesMoveis => Entidades.OfType<IMovel>();
         
-        public readonly (double x, double y) Tamanho;
+        public readonly Tamanho Tamanho;
+        readonly public PosicaoLados PosicaoLados ;
         public double PixelPorUnidade = TP;
-        public Estilo Background = Color.Black;
-        public Cord Spawn { get; set; } = (1, 1);
-        public  double Esquerda => -Tamanho.x/2;
-        public  double Direita => Tamanho.x/2;
-        public  double Cima => -Tamanho.y / 2;
-        public  double Baixo => Tamanho.y / 2;
+        public IEstilo Estilo;
         public Mapa(double TamX, double TamY)
         {
-            Tamanho =  (TamX, TamY );
+            Tamanho = new Tamanho(TamX, TamY );
+            PosicaoLados =  new PosicaoLados((0,0), Tamanho);
         }
         
-        public void MorteParticula(Particula particula){
+        public void RemoverEntidade(IEntidade particula){
             Entidades.Remove(particula);
         }
         public void AdicionarEntidade(IEntidade entidade)
@@ -47,28 +42,31 @@ namespace Engine
 
         const double Steps = 10;
         static double VelocidadeRelativa = 1;
-        public void AtualizarMapa(KeyboardState teclado, MouseState mouse,double VelocidadeTempo = 1)
+        public void AtualizarMapa(IInputs inputs,double VelocidadeTempo = 1)
         {
             //VelocidadeTempo = VelocidadeTempo == 1 ?  VelocidadeRelativa : VelocidadeTempo;
             var TotalSteps = Steps * Math.Abs(VelocidadeTempo);
             var DeltaT = 1/(Steps * VelocidadeTempo);
             St.Start();
             for (int T = 0; T < TotalSteps; T++)
-            {
-                Tempo += DeltaT;
-                SistemaColisao.Colidir(Entidades.OfType<IColisivel>(), DeltaT);
-                foreach(var Entidade in Entidades.OfType<IInputable>())
-                    Entidade.Inputs.Atualizar(teclado, mouse);
-                
-                foreach (var Entidade in Entidades)
-                    Entidade.Atualizar(DeltaT);
-            }
-            St.Stop();
+				SubAualizacao(inputs, DeltaT);
+			St.Stop();
             //MostrarVelocidade();
             //LogTicks(St.ElapsedTicks);
             St.Restart();
-        }   
-        List<double> ListTicks = new List<double>();
+        }
+
+		protected void SubAualizacao(IInputs inputs, double DeltaT)
+		{
+            Tempo += DeltaT;
+			SistemaColisao.Colidir(Entidades.OfType<IColisivel>(), DeltaT);
+			foreach (var Entidade in Entidades.OfType<IInputable>())
+				Entidade.Inputs = inputs;
+			foreach (var Entidade in Entidades)
+				Entidade.Atualizar(DeltaT);
+		}
+
+		List<double> ListTicks = new List<double>();
         void LogTicks(double Ticks){
             
             ListTicks.Add(Ticks);
@@ -81,14 +79,12 @@ namespace Engine
             IMovel MaisRapido = entidadesMoveis.First();
             foreach (IMovel movel in entidadesMoveis)
             {
-                movel.Estilo = System.Drawing.Color.White;
                 var vel= movel.Mov.Velocidade;
                 if (MaisRapido.Mov.Velocidade.Tamanho <= vel.Tamanho)
                     MaisRapido = movel;
                 if(!double.IsNaN(vel.x) && !double.IsNaN(vel.y))
                     VelocidadeTotal +=  movel.Mov.Velocidade;
             }
-            MaisRapido.Estilo = System.Drawing.Color.Red;
             if(MaisRapido.Mov.Velocidade.Tamanho !=  VelocidadeMaximaAnterior){
                 VelocidadeMaximaAnterior = MaisRapido.Mov.Velocidade.Tamanho;
                 Console.WriteLine("maior velocidade: " + MaisRapido.Mov.Velocidade.Tamanho/Math.Sqrt(2)); 

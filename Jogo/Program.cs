@@ -1,5 +1,4 @@
-﻿using Armazenamento;
-using System;
+﻿using System;
 
 namespace Jogo
 {

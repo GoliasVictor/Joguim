@@ -39,7 +39,7 @@ namespace Jogo
  
 
           
-            var Cor = entidade.Estilo.Cor;
+            var Cor = ((IEstilizavel)entidade).Estilo.Cor;
             
             var Pos = new Vector2(
                 (float)(entidade.Pos.x - entidade.Tam.Largura / 2),
