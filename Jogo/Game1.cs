@@ -30,9 +30,8 @@ namespace Jogo
         public void GerarMapa()
         {
             Tempo = 0; 
-            Map = MapasPrefeitos.GerarMapaDeTeste1();
-            
-           // Map.AdicionarEntidade(Jogador = new Jogador((50,50), estilo: Estilo.Player));
+            Map = MapasPrefeitos.GerarTesteColisaoEstatica();
+            Map.AdicionarEntidade(new Jogador((0,0),0.02,1,1));
         }
 
         protected override void Initialize()

@@ -40,18 +40,18 @@ namespace Engine
                 Entidades.Add(entidade);
         }
 
-        const double Steps = 10;
+        const double Steps = 20;
         static double VelocidadeRelativa = 1;
         public void AtualizarMapa(IInputs inputs,double VelocidadeTempo = 1)
         {
-            //VelocidadeTempo = VelocidadeTempo == 1 ?  VelocidadeRelativa : VelocidadeTempo;
-            var TotalSteps = Steps * Math.Abs(VelocidadeTempo);
-            var DeltaT = 1/(Steps * VelocidadeTempo);
+            VelocidadeTempo =   VelocidadeRelativa;
+            var TotalSteps = Steps ;//* Math.Abs(VelocidadeTempo);
+            var DeltaT = VelocidadeTempo/Steps;
             St.Start();
             for (int T = 0; T < TotalSteps; T++)
 				SubAualizacao(inputs, DeltaT);
 			St.Stop();
-            //MostrarVelocidade();
+            //MostrarMagnetudeVelocidade();
             //LogTicks(St.ElapsedTicks);
             St.Restart();
         }
@@ -62,8 +62,9 @@ namespace Engine
 			SistemaColisao.Colidir(Entidades.OfType<IColisivel>(), DeltaT);
 			foreach (var Entidade in Entidades.OfType<IInputable>())
 				Entidade.Inputs = inputs;
-			foreach (var Entidade in Entidades)
+            foreach (var Entidade in Entidades)
 				Entidade.Atualizar(DeltaT);
+
 		}
 
 		List<double> ListTicks = new List<double>();
@@ -90,12 +91,25 @@ namespace Engine
                 Console.WriteLine("maior velocidade: " + MaisRapido.Mov.Velocidade.Tamanho/Math.Sqrt(2)); 
             }
             
-            //Console.WriteLine(VelocidadeTotal + ParedeVelocidade);
-            VelocidadeRelativa = 1/(MaisRapido.Mov.Velocidade.Tamanho*10);
-            if(VelocidadeRelativa < 1/21153.929811923368)
-                VelocidadeRelativa = 1/21153.929811923368;
+            VelocidadeRelativa = (MaisRapido.Mov.Velocidade.Tamanho);
+            if(VelocidadeRelativa > 500)
+                VelocidadeRelativa = 500;
+            if(VelocidadeRelativa < 1)
+                VelocidadeRelativa = 1;
+        }
+        private void MostrarMagnetudeVelocidade(){
+           double MagntudeTotal = entidadesMoveis.Sum(e => {
+                var tamanho = e.Mov.Velocidade.Tamanho;
+                return double.IsNaN(tamanho) ? 0 : tamanho;
+            });
+            var MagnetudeMedia = MagntudeTotal / entidadesMoveis.Count();
+            Console.WriteLine("Velocidade Media Entidades: " + MagnetudeMedia); 
 
-            
+            VelocidadeRelativa = 1/MagnetudeMedia ;
+            if(VelocidadeRelativa > 1)
+                VelocidadeRelativa = 1;
+            if(VelocidadeRelativa < 0.001)
+                VelocidadeRelativa = 0.001;
         }
 	} 
 }

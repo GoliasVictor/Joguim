@@ -8,9 +8,10 @@ namespace Engine
 
 		void AplicarForca(Vetor forca);
 		void Atualizar(double DeltaTempo);
+		void CancelarMovimento(Vetor direcao);
 	}
-
-	public sealed class Movimento : IMovimento
+	
+	public class Movimento : IMovimento
 	{
 		readonly IMovel Self;
 		public Movimento(IMovel self, Vetor velocidade = default)
@@ -18,13 +19,24 @@ namespace Engine
 			Self = self;
 			Velocidade = velocidade;
 			ForcaAplicada = Vetor.Zero;
-			ProximaPosicao = Self.Pos;
 		}
 
 		public Vetor Velocidade { get; set; }
-		private Vetor ProximaPosicao;
+		Vetor DirecaoCancelada ;
+
 		public PosicaoLados ProximosLados {get;set;}
-		public Vetor ProximaVelocidade => Velocidade + ForcaAplicada;
+		public Vetor CalcProximaVelocidade(){
+			var vel = Velocidade + ForcaAplicada;
+			var Dir = DirecaoCancelada;
+			if(Dir != Vetor.Zero){
+				var aux = vel -  Dir * vel * Dir;
+				if(Dir.x * vel.x > 0)
+					vel.x = aux.x;
+				if(Dir.y * vel.y > 0)
+					vel.y =  aux.y;
+			}
+			return vel;
+		}
 
 		Vetor CalcProximaPos(double DeltaTempo)
 		{
@@ -35,11 +47,16 @@ namespace Engine
 		public void AplicarForca(Vetor forca) => ForcaAplicada += forca;
 		public void Atualizar(double DeltaTempo)
 		{
-			Velocidade = ProximaVelocidade;
+			Velocidade = CalcProximaVelocidade();
 			ForcaAplicada = Vetor.Zero;
 			Self.Pos = CalcProximaPos(DeltaTempo);
-			ProximaPosicao = CalcProximaPos(DeltaTempo);
+			var ProximaPosicao = CalcProximaPos(DeltaTempo);
 			ProximosLados = new(ProximaPosicao, Self.Tam);
+			DirecaoCancelada = Vetor.Zero;
+		}
+		
+		public void CancelarMovimento(Vetor direcao){
+			DirecaoCancelada += direcao.Normalizar();
 		}
 	}
 }

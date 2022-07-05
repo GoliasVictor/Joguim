@@ -38,18 +38,19 @@ namespace Jogo
 
 		public override void Atualizar(double DeltaTempo)
 		{
+			Mov.AplicarForca(-0.01*Mov.Velocidade); ;
 			
-			Mov.Atualizar(DeltaTempo);
 			Vetor Direcao = Vetor.Zero;
 
+			Direcao += Inputs.EstaPresionada(Keys.Down) ?  Vetor.Baixo : Vetor.Zero;
+			Direcao += Inputs.EstaPresionada(Keys.Up) 	?  Vetor.Cima : Vetor.Zero;
+			Direcao += Inputs.EstaPresionada(Keys.Right)?  Vetor.Direita : Vetor.Zero;
+			Direcao += Inputs.EstaPresionada(Keys.Left)	?  Vetor.Esquerda : Vetor.Zero;
+			if((Mov.Velocidade + magnetudeVelocidade * Direcao).Tamanho < 10){
+				Mov.AplicarForca(magnetudeVelocidade * ( Direcao != Vetor.Zero ? Direcao.Normalizar() : Vetor.Zero)); ;
+			}
 
-			Direcao += Inputs.EstaPresionada(Keys.Down) ? 0.01 * Vetor.Baixo : Vetor.Zero;
-			Direcao += Inputs.EstaPresionada(Keys.Up) ? 0.01 * Vetor.Cima : Vetor.Zero;
-			Direcao += Inputs.EstaPresionada(Keys.Right) ? 0.01 * Vetor.Direita : Vetor.Zero;
-			Direcao += Inputs.EstaPresionada(Keys.Left) ? 0.01 * Vetor.Esquerda : Vetor.Zero;
-
-			Mov.Velocidade = magnetudeVelocidade * ( Direcao != Vetor.Zero ? Direcao.Normalizar() : Vetor.Zero) ;
-
+			Mov.Atualizar(DeltaTempo);
 
 		}
 

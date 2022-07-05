@@ -17,7 +17,7 @@ namespace Engine
 			public WraperColisao(IColisivel entidade)
 			{
 				Entidade = entidade;
-				if (entidade is IMovel entidadeMovel)
+				if (  entidade is IMovel entidadeMovel)
 				{
 					Lados = entidadeMovel.Mov.ProximosLados;
 					Estatico = false;
@@ -27,6 +27,9 @@ namespace Engine
 					Lados = entidade.Lados;
 					Estatico = true;
 				}
+					Lados = entidade.Lados;
+
+
 			}
 		}
 		public static void Colidir(IEnumerable<IColisivel> entidades, double DeltaT)
@@ -37,7 +40,7 @@ namespace Engine
 			for (int i = 0; i < EntidadesWrapers.Length; i++)
 			{
 				WraperColisao A = EntidadesWrapers[i];
-				for (int j = i; j < EntidadesWrapers.Length; j++)
+				for (int j = i+1; j < EntidadesWrapers.Length; j++)
 				{
 					WraperColisao B = EntidadesWrapers[j];
 					if (A.Estatico && B.Estatico)

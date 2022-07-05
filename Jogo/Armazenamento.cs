@@ -150,8 +150,8 @@ namespace Jogo
             var entidades = new Entidade[]{
                 new BateVolta(new Vetor(-200, 0),(Vetor.Baixo+Vetor.Esquerda)*3),
 
-                new BateVolta((-40,70), Vetor.Direita*2),
-                new BateVolta(( 40,70), Vetor.Esquerda*2),
+f                new BateVolta((-40,120), Vetor.Direita*2),
+                new BateVolta(( 40,120), Vetor.Esquerda*2),
                 new BateVolta(( 70,-40), Vetor.Cima *2),
                 new BateVolta(( 70,40), Vetor.Baixo*2),
                 
@@ -161,6 +161,28 @@ namespace Jogo
                 //new BateVolta(new Cord(Aux-= 20, 0)),
                 //new BateVolta(new Cord(Aux-= 20, 0)),
                 //new BateVolta(new Cord(Aux-= 20.1*2, 0), Vetor.Direita), 
+            };
+            Map.AdicionarEntidades(entidades);
+            return Map;
+        }
+
+        public static  Mapa GerarTesteColisaoEstatica()
+        {
+            var Map = new Mapa(500, 500);
+            Map.PixelPorUnidade = 1;
+            AdicionarParedes(Map, TP);
+            var entidades = new Entidade[]{
+
+                new Parede((0,0), 100,100),
+
+                new BateVolta((   0, 100), Vetor.Zero),
+                new BateVolta((   0,-100), Vetor.Zero),
+                new BateVolta(( 100,   0), Vetor.Zero),
+                new BateVolta((-100,   0), Vetor.Zero),
+                new BateVolta(( 100, 100), Vetor.Zero),
+                new BateVolta(( 100,-100), Vetor.Zero),
+                new BateVolta((-100, 100), Vetor.Zero ),
+                new BateVolta((-100,-100), Vetor.Zero),
             };
             Map.AdicionarEntidades(entidades);
             return Map;
