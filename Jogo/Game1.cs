@@ -4,8 +4,28 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using Engine;
 using static Engine.Helper;
+using System.Linq;
+
 namespace Jogo
 {
+    class RectangleSprite
+    {
+        static Texture2D _pointTexture;
+        public static void DrawRectangle(SpriteBatch spriteBatch, Rectangle rectangle, Color color, int lineWidth)
+        {
+            if (_pointTexture == null)
+            {
+                _pointTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
+                _pointTexture.SetData<Color>(new Color[]{Color.White});
+            }
+
+            spriteBatch.Draw(_pointTexture, new Rectangle(rectangle.X, rectangle.Y, lineWidth, rectangle.Height + lineWidth), color);
+            spriteBatch.Draw(_pointTexture, new Rectangle(rectangle.X, rectangle.Y, rectangle.Width + lineWidth, lineWidth), color);
+            spriteBatch.Draw(_pointTexture, new Rectangle(rectangle.X + rectangle.Width, rectangle.Y, lineWidth, rectangle.Height + lineWidth), color);
+            spriteBatch.Draw(_pointTexture, new Rectangle(rectangle.X, rectangle.Y + rectangle.Height, rectangle.Width + lineWidth, lineWidth), color);
+        }     
+    }
+
     public class Game1 : Game
     {
 
@@ -30,7 +50,7 @@ namespace Jogo
         public void GerarMapa()
         {
             Tempo = 0; 
-            Map = MapasPrefeitos.GerarMapaDeTeste1();
+            Map = MapasPrefeitos.GerarMapaParticulas();
             
            // Map.AdicionarEntidade(Jogador = new Jogador((50,50), estilo: Estilo.Player));
         }
@@ -91,6 +111,9 @@ namespace Jogo
 
             foreach (IEntidade entidade in Map.Entidades)
                 Desenhista.Desenhar(entidade);
+            foreach(var chunk in SistemaColisao.GerarChunks(Map.Entidades.OfType<IColisivel>().Select(e=> new SistemaColisao.WraperColisao(e)))){
+                Desenhista.Desenhar(chunk);
+            }
 
             Desenhista.Finalizar();
             base.Draw(gameTime);
