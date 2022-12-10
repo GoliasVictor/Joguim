@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Jogo
@@ -47,6 +48,20 @@ namespace Jogo
 
             var Tam = new Point((int)entidade.Tam.Largura , (int)entidade.Tam.Altura);
             SpriteBatch.Draw(WhiteTexture, Pos,new Rectangle(new Point(0,0),Tam), new Color(Cor.R, Cor.G, Cor.B));
+
+        }
+
+        public void Desenhar(Chunk chunk)
+        {
+                var tam = new Point(
+                    (int)(Math.Abs(chunk.Lados.Esquerda - chunk.Lados.Direita))-1,
+                    (int)(Math.Abs(chunk.Lados.Cima - chunk.Lados.Baixo))-1
+                );
+                var pos =  new Point((int)chunk.Lados.Esquerda,(int)chunk.Lados.Cima);
+                Color cor  = new Color();
+                var Intensidade = ((double)chunk.Entidades.Count())/(double)SistemaColisao.QtMaxEntidadesChunks;
+                cor = new Color(255 , (float)(255*(1-Intensidade)), (float)(255*(1-Intensidade)));
+                RectangleSprite.DrawRectangle(SpriteBatch, new Rectangle(pos,tam), cor,2);        
 
         }
 

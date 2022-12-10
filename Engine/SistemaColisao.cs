@@ -6,9 +6,22 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-	class SistemaColisao
+	public struct Chunk {
+		public Chunk(PosicaoLados posicaoLados)
+		{
+			Lados = posicaoLados;
+			Entidades = new();
+		}
+
+		public PosicaoLados Lados {get;set;}
+		public List<SistemaColisao.WraperColisao> Entidades {get;set;}
+
+	}
+	public class SistemaColisao
 	{
-		struct WraperColisao
+
+		public const int QtMaxEntidadesChunks = 10;
+		public struct WraperColisao
 		{
 			public readonly PosicaoLados Lados;
 			public readonly IColisivel Entidade;
@@ -29,25 +42,86 @@ namespace Engine
 				}
 			}
 		}
+
+		record struct ParColisao ( IColisivel A, IColisivel B){};
+
+		public static IEnumerable<Chunk> GerarChunks(IEnumerable <WraperColisao> entidades, PosicaoLados? posLados = null){
+			if (entidades is null)
+				throw new ArgumentNullException(nameof(entidades));
+			var Lados =	 posLados ?? new PosicaoLados(
+				esquerda:  entidades.Select((e)=> e.Lados.Esquerda).Min(),
+				direita :  entidades.Select((e)=> e.Lados.Direita).Max(),
+				cima 	:  entidades.Select((e)=> e.Lados.Cima).Min(),
+				baixo 	:  entidades.Select((e)=> e.Lados.Baixo).Max()
+			);
+			var largura = Math.Abs(Lados.Esquerda - Lados.Direita);
+			var altura = Math.Abs(Lados.Baixo - Lados.Cima);
+			
+			var qt = 2;
+
+			var LarguraChunk =  largura / qt;
+			var AlturaChunk =  altura / qt;
+			var Chunks =  new List<Chunk>();
+			for (int l = 0; l < qt; l++)
+				for (int c = 0; c < qt; c++)
+					Chunks.Add(new Chunk(new PosicaoLados(
+						esquerda: Lados.Esquerda +  LarguraChunk * c,
+						direita: Lados.Esquerda +  LarguraChunk * (c+1),
+						cima : Lados.Cima + AlturaChunk * l,
+						baixo: Lados.Cima + AlturaChunk * (l+1)
+						)
+					));
+
+			foreach (var chunk in Chunks)
+				foreach (var entidade in entidades)
+					if(Colidindo(chunk.Lados, entidade.Lados))
+						chunk.Entidades.Add(entidade);
+			var Chunks2 =  new List<Chunk>();
+			foreach (var chunk in Chunks)
+			{
+				var Count = chunk.Entidades.Count();
+				if(Count == 0)
+					continue; 
+				if( Count > QtMaxEntidadesChunks)
+					Chunks2.AddRange(GerarChunks(chunk.Entidades, chunk.Lados));
+				else 
+					Chunks2.Add(chunk);
+			}
+			return Chunks2;	
+			
+		}
+		static IEnumerable<ParColisao> GerarPares(IEnumerable<WraperColisao> entidades){
+			var Chunks = GerarChunks(entidades);
+			List<ParColisao> pares =  new();
+			foreach (var chunk in Chunks)
+			{
+				
+				for (int i = 0; i < chunk.Entidades.Count(); i++)
+				{
+					WraperColisao A = chunk.Entidades[i];
+					for (int j = i+1; j < chunk.Entidades.Count(); j++)
+					{
+						WraperColisao B = chunk.Entidades[j];
+						if (A.Estatico && B.Estatico)
+							continue;
+
+						var EstaColidindo = Colidindo(A.Lados, B.Lados);
+						if (EstaColidindo)
+							pares.Add(new ParColisao(A.Entidade, B.Entidade));
+					}
+				}
+			}
+			return pares;
+		}
 		public static void Colidir(IEnumerable<IColisivel> entidades, double DeltaT)
 		{
 			if (entidades is null)
 				throw new ArgumentNullException(nameof(entidades));
-			var EntidadesWrapers = entidades.Select(e => new WraperColisao(e)).ToArray();
-			for (int i = 0; i < EntidadesWrapers.Length; i++)
-			{
-				WraperColisao A = EntidadesWrapers[i];
-				for (int j = i; j < EntidadesWrapers.Length; j++)
-				{
-					WraperColisao B = EntidadesWrapers[j];
-					if (A.Estatico && B.Estatico)
-						continue;
-
-					var EstaColidindo = Colidindo(A.Lados, B.Lados);
-					if (EstaColidindo)
-						Colidir(A.Entidade, B.Entidade);
-				}
+			var pares = GerarPares(entidades.Select(e=> new WraperColisao(e)));
+			foreach(var par in pares){
+				Colidir(par.A, par.B);
 			}
+
 		}
 		static bool Colidindo(PosicaoLados A, PosicaoLados B)
         {

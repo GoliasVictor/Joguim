@@ -101,7 +101,7 @@ namespace Jogo
             AdicionarParedes(Map,TP);
             Map.PixelPorUnidade = 0.5;
 
-            var N = 10 ;
+            var N = 20 ;
             var Gap = Tamanho / N;
             for (double rx = 0; rx < Tamanho; rx+= Gap){
                 Estilo Estilo = Estilo.Aleatorio();

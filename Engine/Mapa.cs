@@ -60,6 +60,14 @@ namespace Engine
 		{
             Tempo += DeltaT;
 			SistemaColisao.Colidir(Entidades.OfType<IColisivel>(), DeltaT);
+            foreach(var Entidade in Entidades.OfType<IEntidade>())
+            {
+                if(  PosicaoLados.Direita < Entidade.Pos.x 
+                  || PosicaoLados.Esquerda> Entidade.Pos.x 
+                  || PosicaoLados.Cima > Entidade.Pos.y 
+                  || PosicaoLados.Baixo < Entidade.Pos.y )
+                  RemoverEntidade(Entidade);
+            }
 			foreach (var Entidade in Entidades.OfType<IInputable>())
 				Entidade.Inputs = inputs;
 			foreach (var Entidade in Entidades)
