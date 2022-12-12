@@ -51,17 +51,17 @@ namespace Jogo
 
         }
 
-        public void Desenhar(Chunk chunk)
+        public void Desenhar(Chunk chunk, double Largura)
         {
                 var tam = new Point(
-                    (int)(Math.Abs(chunk.Lados.Esquerda - chunk.Lados.Direita))-1,
-                    (int)(Math.Abs(chunk.Lados.Cima - chunk.Lados.Baixo))-1
+                    (int)(Math.Abs(chunk.Lados.Esquerda - chunk.Lados.Direita)),
+                    (int)(Math.Abs(chunk.Lados.Cima - chunk.Lados.Baixo))
                 );
                 var pos =  new Point((int)chunk.Lados.Esquerda,(int)chunk.Lados.Cima);
                 Color cor  = new Color();
-                var Intensidade = ((double)chunk.Entidades.Count())/(double)SistemaColisao.QtMaxEntidadesChunks;
-                cor = new Color(255 , (float)(255*(1-Intensidade)), (float)(255*(1-Intensidade)));
-                RectangleSprite.DrawRectangle(SpriteBatch, new Rectangle(pos,tam), cor,2);        
+                var Intensidade = chunk.Entidades.Count()/(double)SistemaColisao.QtMaxEntidadesChunks;
+                cor = new Color(255 , (int)(255*(1-Intensidade)), (int)(255*(1-Intensidade)));
+                RectangleSprite.DrawRectangle(SpriteBatch, new Rectangle(pos,tam), cor, (int)Largura);        
 
         }
 
