@@ -13,10 +13,10 @@ namespace Engine
 			Cima = cima;
 			Baixo = baixo;
 		}
-		public double Esquerda { get; init; }
-        public double Direita { get; init; }
-        public double Cima { get; init; }
-        public double Baixo { get; init; }
+		public readonly double Esquerda { get; init; }
+        public readonly double Direita { get; init; }
+        public readonly double Cima { get; init; }
+        public readonly double Baixo { get; init; }
 	}
 
 }

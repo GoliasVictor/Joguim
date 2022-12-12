@@ -40,13 +40,13 @@ namespace Engine
                 Entidades.Add(entidade);
         }
 
-        const double Steps = 10;
+        const double Steps = 5;
         static double VelocidadeRelativa = 1;
         public void AtualizarMapa(IInputs inputs,double VelocidadeTempo = 1)
         {
             //VelocidadeTempo = VelocidadeTempo == 1 ?  VelocidadeRelativa : VelocidadeTempo;
-            var TotalSteps = Steps * Math.Abs(VelocidadeTempo);
-            var DeltaT = 1/(Steps * VelocidadeTempo);
+            var TotalSteps = Steps  ;
+            var DeltaT = VelocidadeTempo / (Steps);
             St.Start();
             for (int T = 0; T < TotalSteps; T++)
 				SubAualizacao(inputs, DeltaT);
@@ -60,14 +60,7 @@ namespace Engine
 		{
             Tempo += DeltaT;
 			SistemaColisao.Colidir(Entidades.OfType<IColisivel>(), DeltaT);
-            foreach(var Entidade in Entidades.OfType<IEntidade>())
-            {
-                if(  PosicaoLados.Direita < Entidade.Pos.x 
-                  || PosicaoLados.Esquerda> Entidade.Pos.x 
-                  || PosicaoLados.Cima > Entidade.Pos.y 
-                  || PosicaoLados.Baixo < Entidade.Pos.y )
-                  RemoverEntidade(Entidade);
-            }
+    
 			foreach (var Entidade in Entidades.OfType<IInputable>())
 				Entidade.Inputs = inputs;
 			foreach (var Entidade in Entidades)

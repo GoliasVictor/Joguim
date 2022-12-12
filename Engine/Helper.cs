@@ -32,7 +32,7 @@ namespace Engine
             B.Mov.AplicarForca(ForcaTransferida);
         }
 
-        public static Random Rnd = new Random();
+        public static Random Rnd = new Random(0);
 
 
     }

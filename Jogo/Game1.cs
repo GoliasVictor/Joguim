@@ -52,7 +52,7 @@ namespace Jogo
             Tempo = 0; 
             Map = MapasPrefeitos.GerarMapaParticulas();
             
-           // Map.AdicionarEntidade(Jogador = new Jogador((50,50), estilo: Estilo.Player));
+            //Map.AdicionarEntidade(new Jogador((0,0), estilo: Estilo.Teletransporte));
         }
 
         protected override void Initialize()
@@ -81,7 +81,6 @@ namespace Jogo
         }
         protected override void Update(GameTime gameTime)
         {
-
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
@@ -90,29 +89,39 @@ namespace Jogo
 
             
             AtualizarZoom();
+            //if (Map.Entidades.Any((e) => !SistemaColisao.Colidindo(Map.PosicaoLados, e.Lados)))
+            //    Stop = true;
             if (Teclado.Apertou(Keys.Space))
                 Stop = !Stop;
             else if (!Stop){
                 var Inputs = new Inputs(Keyboard.GetState(),Mouse.GetState());
-
-                if ( Teclado.Apertando(Keys.T) && Teclado.Apertando(Keys.Left))
-                    Map.AtualizarMapa(Inputs,-VelocidadeTempo);
+                if (Teclado.Apertando(Keys.T) && Teclado.Apertando(Keys.Left))
+                    Map.AtualizarMapa(Inputs, -VelocidadeTempo);
+                else if (Teclado.Apertando(Keys.T) && Teclado.Apertando(Keys.Right))
+                    Map.AtualizarMapa(Inputs, 2*VelocidadeTempo);
                 else
                     Map.AtualizarMapa(Inputs,VelocidadeTempo);
+            }else
+            {
+                var Inputs = new Inputs(Keyboard.GetState(), Mouse.GetState());
+                if (Teclado.Apertou(Keys.Left))
+                    Map.AtualizarMapa(Inputs, -VelocidadeTempo);
+                else if (Teclado.Apertou(Keys.Right))
+                    Map.AtualizarMapa(Inputs, VelocidadeTempo);
             }
 
             base.Update(gameTime);
         } 
         protected override void Draw(GameTime gameTime)
-        { 
+        {
 
             GraphicsDevice.Clear(Background);
             Desenhista.Iniciar(Camera.Transform); 
 
             foreach (IEntidade entidade in Map.Entidades)
                 Desenhista.Desenhar(entidade);
-            foreach(var chunk in SistemaColisao.GerarChunks(Map.Entidades.OfType<IColisivel>().Select(e=> new SistemaColisao.WraperColisao(e)))){
-                Desenhista.Desenhar(chunk);
+            foreach(var chunk in SistemaColisao.GerarChunks(Map.Entidades.OfType<IColisivel>())){
+                Desenhista.Desenhar(chunk, (double)2/Camera.Zoom);
             }
 
             Desenhista.Finalizar();
