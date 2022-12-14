@@ -96,12 +96,12 @@ namespace Jogo
         }
         public static Mapa GerarMapaParticulas()
         {
-            var Tamanho = 40*TP;
+            var Tamanho = 20*TP;
             var Map = new Mapa(Tamanho+TP, Tamanho+TP);
             AdicionarParedes(Map,TP);
-            Map.PixelPorUnidade = 0.5;
+            Map.PixelPorUnidade = 1;
 
-            var N = 10 ;
+            var N = 15;
             var Gap = Tamanho / N;
             for (double rx = 0; rx < Tamanho; rx+= Gap){
                 Estilo Estilo = Estilo.Aleatorio();
@@ -111,8 +111,26 @@ namespace Jogo
                 }
             }
             return Map;
-        } 
+        }
+        public static Mapa GerarMapaParticulasLivres()
+        {
+            var Tamanho = 100 * TP;
+            var Map = new Mapa(Tamanho + TP, Tamanho + TP);
+            Map.PixelPorUnidade = 0.5 / 2;
 
+            var N = 20;
+            var Gap = Tamanho / N;
+            for (double rx = 0; rx < Tamanho; rx += Gap)
+            {
+                Estilo Estilo = Estilo.Aleatorio();
+                for (double ry = 0; ry < Tamanho; ry += Gap)
+                {
+                    var posicao = new Vetor(rx, ry) + new Vetor(1, 1) * (-Tamanho / 2 + Gap / 2);
+                    Map.AdicionarEntidade(new Particula(posicao, Map.RemoverEntidade, double.PositiveInfinity, velocidade: 2, estilo: Estilo));
+                }
+            }
+            return Map;
+        }
         public static Mapa GerarMapaDemonioDeLaplace()
         {
             var Tamanho = 40*TP;
